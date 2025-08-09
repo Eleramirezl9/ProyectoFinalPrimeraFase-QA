@@ -22,26 +22,29 @@ Microservicio REST desarrollado con Spring Boot para la evaluación de calidad d
 
 ## Estructura del Proyecto
 ```
-microservicio-iso25010/
-├── src/
-│   ├── main/
-│   │   ├── java/com/ejemplo/
-│   │   │   ├── config/          # Configuraciones
-│   │   │   ├── controller/      # Controladores REST
-│   │   │   ├── dto/            # DTOs para requests/responses
-│   │   │   ├── exception/      # Manejo de errores
-│   │   │   ├── model/          # Entidades JPA
-│   │   │   ├── repository/     # Repositorios JPA
-│   │   │   ├── service/        # Servicios de negocio
-│   │   │   └── MicroservicioApplication.java
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── data.sql
-│   │       └── messages.properties
-│   └── test/                   # Pruebas unitarias
-├── docs/                       # Documentación
-├── pom.xml
-
+├──EntregaFase I/
+│  ├──documentacion-PDF/
+│      │──API_Documentation.dpf completo                   # Documentación
+│  │──microservicio-iso25010/
+│      ├── src/
+│      │   ├── main/
+│      │   │   ├── java/com/ejemplo/
+│      │   │   │   ├── config/          # Configuraciones
+│      │   │   │   ├── controller/      # Controladores REST
+│      │   │   │   ├── dto/            # DTOs para requests/responses
+│      │   │   │   ├── exception/      # Manejo de errores
+│      │   │   │   ├── model/          # Entidades JPA
+│      │   │   │   ├── repository/     # Repositorios JPA
+│      │   │   │   ├── service/        # Servicios de negocio
+│      │   │   │   └── MicroservicioApplication.java
+│      │   │   └── resources/
+│      │   │       ├── application.yml
+│      │   │       ├── data.sql
+│      │   │       └── messages.properties
+│      │   └── test/                   # Pruebas unitarias
+│      ├── 
+│      ├── pom.xml
+│──────────────────────────────────────────────   
 ```
 
 ## Requisitos Previos
