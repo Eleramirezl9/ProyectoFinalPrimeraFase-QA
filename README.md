@@ -56,7 +56,7 @@ Microservicio REST desarrollado con Spring Boot para la evaluación de calidad d
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Eleramirezl9/ProyectoFinalPrimeraFase-QA.git
 cd microservicio-iso25010
 ```
 
