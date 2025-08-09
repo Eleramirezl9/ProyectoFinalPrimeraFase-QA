@@ -41,7 +41,7 @@ microservicio-iso25010/
 │   └── test/                   # Pruebas unitarias
 ├── docs/                       # Documentación
 ├── pom.xml
-└── README.md
+
 ```
 
 ## Requisitos Previos
@@ -107,13 +107,11 @@ Para acceder a la consola H2:
 - `PUT /api/pedidos/{id}` - Actualizar pedido
 - `DELETE /api/pedidos/{id}` - Eliminar pedido
 
-## Documentación Adicional
-- [Casos de Prueba](docs/Casos_Prueba.pdf)
-- [Documentación API](docs/API_Documentation.pdf)
-- [Evaluación ISO 25010](docs/Evaluacion_ISO_25010.pdf)
+## Documentación completa
+- [Casos de Prueba, Documentación API, Evaluación ISO 25010](documentacion-PDF/API_Documentation%20completo.pdf)
 
 ## Autor
-**Estudiante Universidad Mariano Gálvez**
+**Estudiantes de la Universidad Mariano Gálvez**
 - Curso: Aseguramiento de la Calidad de Software
 - Proyecto: Evaluación ISO/IEC 25010
 
