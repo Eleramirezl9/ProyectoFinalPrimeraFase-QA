@@ -108,7 +108,7 @@ Para acceder a la consola H2:
 - `DELETE /api/pedidos/{id}` - Eliminar pedido
 
 ## Documentación Adicional
-- [Casos de Prueba](docs/Casos_Prueba.pdf)
+- [Casos de Prueba](documentacion-PDF/API_Documentation%20completo.pdf)
 - [Documentación API](docs/API_Documentation.pdf)
 - [Evaluación ISO 25010](docs/Evaluacion_ISO_25010.pdf)
 

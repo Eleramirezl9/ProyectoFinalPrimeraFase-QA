@@ -41,11 +41,10 @@ import java.util.List;
 public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
-
     @Autowired
     private PedidoRepository pedidoRepository;
     
-        @Autowired
+    @Autowired
     private UsuarioService usuarioService;
 
     @Autowired
@@ -78,12 +77,10 @@ public class PedidoController {
      * Obtiene todos los pedidos
      */
     @GetMapping
-    @Operation(summary = "Obtener todos los pedidos", 
-               description = "Retorna una lista con todos los pedidos del sistema")
+    @Operation(summary = "Obtener todos los pedidos",description = "Retorna una lista con todos los pedidos del sistema")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<List<Pedido>> obtenerTodos() {
@@ -97,12 +94,10 @@ public class PedidoController {
      * Obtiene un pedido por su ID
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener pedido por ID", 
-               description = "Retorna un pedido específico basado en su ID")
+    @Operation(summary = "Obtener pedido por ID",description = "Retorna un pedido específico basado en su ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido encontrado exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
         @ApiResponse(responseCode = "400", description = "ID inválido"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -121,12 +116,10 @@ public class PedidoController {
      * Crea un nuevo pedido
      */
     @PostMapping
-    @Operation(summary = "Crear nuevo pedido", 
-               description = "Crea un nuevo pedido con los datos proporcionados")
+    @Operation(summary = "Crear nuevo pedido",description = "Crea un nuevo pedido con los datos proporcionados")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Pedido creado exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
         @ApiResponse(responseCode = "404", description = "Usuario o producto no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -134,8 +127,7 @@ public class PedidoController {
     public ResponseEntity<Pedido> crear(
             @Parameter(description = "Datos del pedido a crear", required = true)
             @Valid @RequestBody CrearPedidoRequest request) {
-        logger.info("POST /pedidos - Creando nuevo pedido para usuario ID: {}, producto ID: {}", 
-                   request.getUsuarioId(), request.getProductoId());
+        logger.info("POST /pedidos - Creando nuevo pedido para usuario ID: {}, producto ID: {}",request.getUsuarioId(), request.getProductoId());
 
         // Obtener usuario y producto
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
@@ -165,12 +157,10 @@ public class PedidoController {
      * Actualiza un pedido existente
      */
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar pedido", 
-               description = "Actualiza los datos de un pedido existente")
+    @Operation(summary = "Actualizar pedido",description = "Actualiza los datos de un pedido existente")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido actualizado exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -224,8 +214,7 @@ public class PedidoController {
      * Elimina un pedido
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar pedido", 
-               description = "Elimina un pedido del sistema y restaura el stock")
+    @Operation(summary = "Eliminar pedido",description = "Elimina un pedido del sistema y restaura el stock")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Pedido eliminado exitosamente"),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
@@ -257,12 +246,10 @@ public class PedidoController {
      * Obtiene pedidos por usuario
      */
     @GetMapping("/usuario/{usuarioId}")
-    @Operation(summary = "Obtener pedidos por usuario", 
-               description = "Retorna todos los pedidos de un usuario específico")
+    @Operation(summary = "Obtener pedidos por usuario",description = "Retorna todos los pedidos de un usuario específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedidos del usuario obtenidos",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
@@ -279,12 +266,10 @@ public class PedidoController {
      * Obtiene pedidos por producto
      */
     @GetMapping("/producto/{productoId}")
-    @Operation(summary = "Obtener pedidos por producto", 
-               description = "Retorna todos los pedidos de un producto específico")
+    @Operation(summary = "Obtener pedidos por producto",description = "Retorna todos los pedidos de un producto específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedidos del producto obtenidos",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Producto no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
@@ -301,12 +286,10 @@ public class PedidoController {
      * Obtiene pedidos por estado
      */
     @GetMapping("/estado/{estado}")
-    @Operation(summary = "Obtener pedidos por estado", 
-               description = "Retorna todos los pedidos con un estado específico")
+    @Operation(summary = "Obtener pedidos por estado",description = "Retorna todos los pedidos con un estado específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedidos por estado obtenidos",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "400", description = "Estado inválido"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
@@ -330,12 +313,10 @@ public class PedidoController {
      * Cambia el estado de un pedido
      */
     @PatchMapping("/{id}/estado")
-    @Operation(summary = "Cambiar estado de pedido", 
-               description = "Actualiza el estado de un pedido específico")
+    @Operation(summary = "Cambiar estado de pedido",description = "Actualiza el estado de un pedido específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Estado actualizado exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
         @ApiResponse(responseCode = "400", description = "Estado inválido"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -369,12 +350,10 @@ public class PedidoController {
      * Cancela un pedido
      */
     @PatchMapping("/{id}/cancelar")
-    @Operation(summary = "Cancelar pedido", 
-               description = "Cancela un pedido y restaura el stock del producto")
+    @Operation(summary = "Cancelar pedido",description = "Cancela un pedido y restaura el stock del producto")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido cancelado exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
         @ApiResponse(responseCode = "400", description = "Pedido no puede ser cancelado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -408,8 +387,7 @@ public class PedidoController {
      * Obtiene estadísticas de pedidos
      */
     @GetMapping("/estadisticas")
-    @Operation(summary = "Obtener estadísticas de pedidos", 
-               description = "Retorna estadísticas generales sobre los pedidos del sistema")
+    @Operation(summary = "Obtener estadísticas de pedidos",description = "Retorna estadísticas generales sobre los pedidos del sistema")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas exitosamente"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -433,8 +411,7 @@ public class PedidoController {
             public final BigDecimal ventasTotal = totalVentas;
         };
         
-        logger.info("Estadísticas: Total={}, Pendientes={}, Confirmados={}, Entregados={}, Cancelados={}, Ventas={}",
-                   totalPedidos, pedidosPendientes, pedidosConfirmados, pedidosEntregados, pedidosCancelados, totalVentas);
+        logger.info("Estadísticas: Total={}, Pendientes={}, Confirmados={}, Entregados={}, Cancelados={}, Ventas={}",totalPedidos, pedidosPendientes, pedidosConfirmados, pedidosEntregados, pedidosCancelados, totalVentas);
         return ResponseEntity.ok(estadisticas);
     }
 }

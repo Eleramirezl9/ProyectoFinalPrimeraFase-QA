@@ -12,7 +12,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 /**
  * Configuración para habilitar y asegurar el acceso a la consola H2
  * Permite acceso a la interfaz web de H2 para desarrollo y pruebas
- * 
  * @author Estudiante Universidad Mariano Gálvez
  * @version 1.0.0
  */
