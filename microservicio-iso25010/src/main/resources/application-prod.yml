@@ -1,0 +1,94 @@
+# ========================================
+# CONFIGURACIÓN DE PRODUCCIÓN
+# Microservicio ISO 25010
+# ========================================
+
+# ----------------------------------------
+# CONFIGURACIÓN DE SEGURIDAD PARA PRODUCCIÓN
+# ----------------------------------------
+# H2 Console DESHABILITADA en producción
+spring:
+  h2:
+    console:
+      enabled: false
+  
+  # JPA para producción
+  jpa:
+    hibernate:
+      ddl-auto: validate  # No modifica estructura DB
+    show-sql: false       # Sin logs SQL
+    properties:
+      hibernate:
+        '[format_sql]': false
+
+# ----------------------------------------
+# SWAGGER DESHABILITADO EN PRODUCCIÓN
+# ----------------------------------------
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# ----------------------------------------
+# CORS RESTRICTIVO PARA PRODUCCIÓN
+# ----------------------------------------
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:}  # Debe definirse obligatoriamente
+  allow-credentials: true
+  max-age: 7200  # 2 horas de cache
+
+# ----------------------------------------
+# LOGGING PARA PRODUCCIÓN
+# ----------------------------------------
+logging:
+  level:
+    '[com.ejemplo]': INFO
+    '[org.springframework.web]': WARN
+    '[org.hibernate.SQL]': WARN
+    root: WARN
+  
+  # Configuración de archivos de log
+  file:
+    path: ${LOG_PATH:./logs}
+    name: ${LOG_FILE:./logs/microservicio-iso25010.log}
+  
+  # Rotación de logs
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB
+      max-history: 30
+      total-size-cap: 1GB
+
+# ----------------------------------------
+# ACTUATOR PARA MONITOREO
+# ----------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  
+  # Métricas para monitoring
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# ----------------------------------------
+# CONFIGURACIÓN DEL SERVIDOR
+# ----------------------------------------
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+  
+  # Configuración SSL/TLS (si se requiere)
+  # ssl:
+  #   enabled: ${SSL_ENABLED:false}
+  #   key-store: ${SSL_KEYSTORE_PATH:}
+  #   key-store-password: ${SSL_KEYSTORE_PASSWORD:}
+  #   key-store-type: ${SSL_KEYSTORE_TYPE:JKS}

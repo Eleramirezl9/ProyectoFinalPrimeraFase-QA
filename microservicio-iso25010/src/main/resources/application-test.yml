@@ -1,0 +1,73 @@
+# ========================================
+# CONFIGURACIÓN DE TESTING
+# Microservicio ISO 25010
+# ========================================
+
+# ----------------------------------------
+# CONFIGURACIÓN DE BASE DE DATOS PARA TESTS
+# ----------------------------------------
+spring:
+  datasource:
+    # Base de datos en memoria independiente para tests
+    url: jdbc:h2:mem:testdb_${random.uuid};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: test_user
+    password: test_password_2024
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Limpia DB entre tests
+    show-sql: false          # Sin logs SQL en tests
+    properties:
+      hibernate:
+        '[format_sql]': false
+  
+  # H2 Console deshabilitada en testing
+  h2:
+    console:
+      enabled: false
+  
+  # Sin inicialización de datos en tests
+  sql:
+    init:
+      mode: never
+
+# ----------------------------------------
+# CORS PERMISIVO PARA TESTS
+# ----------------------------------------
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:4200
+  allow-credentials: true
+  max-age: 0  # Sin cache para tests
+
+# ----------------------------------------
+# LOGGING PARA TESTS
+# ----------------------------------------
+logging:
+  level:
+    '[com.ejemplo]': DEBUG
+    '[org.springframework.test]': INFO
+    '[org.springframework.web]': INFO
+    '[org.hibernate.SQL]': WARN
+    root: WARN
+
+# ----------------------------------------
+# ACTUATOR PARA TESTS
+# ----------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# ----------------------------------------
+# CONFIGURACIONES ESPECÍFICAS DE TEST
+# ----------------------------------------
+# Deshabilitamos caches para tests
+spring.cache.type: none
+
+# Puerto dinámico para tests paralelos
+server:
+  port: 0

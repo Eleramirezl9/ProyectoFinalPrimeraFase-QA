@@ -102,11 +102,94 @@ build/
 ehthumbs.db
 Thumbs.db
 
-# Application specific
-application-local.yml
-application-dev.yml
-logs/
+# ========================================
+# ARCHIVOS DE CONFIGURACIÓN SENSIBLES
+# ========================================
+# Variables de entorno - NUNCA COMMITEAR
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
 
+# Archivos de configuración específicos del entorno
+application-local.yml
+application-staging.yml
+
+# NOTA: application-dev.yml, application-test.yml y application-prod.yml
+# SÍ se commitean porque contienen configuraciones base sin credenciales sensibles
+# Las credenciales específicas vienen de variables de entorno
+
+# Logs y archivos temporales
+logs/
+*.log
+nohup.out
+
+# ========================================
+# ARCHIVOS DE DESARROLLO
+# ========================================
 # Claude Code files
 CLAUDE.md
+
+# Archivos de respaldo y temporales
+*.backup
+*.tmp
+.tmp/
+
+# ========================================
+# CERTIFICADOS Y LLAVES (SEGURIDAD)
+# ========================================
+# Nunca commitear certificados o llaves privadas
+*.key
+*.pem
+*.p12
+*.jks
+keystore.jks
+truststore.jks
+*.crt
+*.cer
+
+# ========================================
+# ARCHIVOS ESPECÍFICOS DE DESARROLLO
+# ========================================
+# Coverage reports
+coverage/
+*.coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# ========================================
+# HERRAMIENTAS DE DESARROLLO
+# ========================================
+# SonarQube
+.sonar/
+.scannerwork/
+
+# JProfiler
+*.jprofiler
+
+# YourKit
+*.yjp
+
+# JRebel
+.rebel.xml.bak
+
+# ========================================
+# SCRIPTS CON CREDENCIALES (OPCIONALES)
+# ========================================
+# Scripts con configuraciones específicas (si contienen credenciales reales)
+# start-dev.bat - INCLUIDO porque puede tener credenciales de desarrollo
+# test-env-vars.bat - INCLUIDO porque son credenciales de prueba, no reales
+
+# Si los scripts contienen credenciales reales, descomenta estas líneas:
+# start-dev-local.bat
+# config-local.bat
 

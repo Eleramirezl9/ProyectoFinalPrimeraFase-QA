@@ -1,7 +1,7 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
-    context-path: /api
+    context-path: ${CONTEXT_PATH:/api}
     encoding:
       charset: UTF-8
       enabled: true
@@ -22,17 +22,17 @@ spring:
   
   # Configuración de base de datos H2
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    url: ${DB_URL:jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:dev_user}
+    password: ${DB_PASSWORD:dev_secure_password_2025}
   
   # Configuración JPA/Hibernate
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: ${DB_PLATFORM:org.hibernate.dialect.H2Dialect}
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: ${DB_DDL_AUTO:create-drop}
+    show-sql: ${DB_SHOW_SQL:true}
     properties:
       hibernate:
         '[format_sql]': true
@@ -49,10 +49,10 @@ spring:
   # Configuración H2 Console
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: ${H2_CONSOLE_ENABLED:true}
+      path: ${H2_CONSOLE_PATH:/h2-console}
       settings:
-        web-allow-others: true
+        web-allow-others: ${H2_WEB_ALLOW_OTHERS:true}
   
   # Configuración de inicialización de datos
   sql:
@@ -65,29 +65,36 @@ spring:
 # Configuración de logging
 logging:
   level:
-    '[com.ejemplo]': DEBUG
-    '[org.springframework.web]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+    '[com.ejemplo]': ${LOG_LEVEL_APP:DEBUG}
+    '[org.springframework.web]': ${LOG_LEVEL_WEB:DEBUG}
+    '[org.hibernate.SQL]': ${LOG_LEVEL_SQL:DEBUG}
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': ${LOG_LEVEL_HIBERNATE:TRACE}
+    root: ${LOG_LEVEL_ROOT:INFO}
 
 # Configuración de SpringDoc OpenAPI
 springdoc:
   api-docs:
-    path: /api-docs
+    path: ${SWAGGER_API_DOCS_PATH:/api-docs}
+    enabled: ${SWAGGER_ENABLED:true}
   swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
+    path: ${SWAGGER_UI_PATH:/swagger-ui.html}
+    enabled: ${SWAGGER_UI_ENABLED:true}
 
 # Configuración de gestión y monitoreo (Spring Boot Actuator)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: ${ACTUATOR_ENDPOINTS:health,info,metrics}
   endpoint:
     health:
-      show-details: always
+      show-details: ${ACTUATOR_HEALTH_DETAILS:when-authorized}
 
 # Configuración personalizada de CORS
-# Esta configuración es leída por CorsConfig.java mediante valores por defecto
-# Las URLs permitidas están definidas en CorsConfig.java
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:4200,http://127.0.0.1:8080}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,PATCH,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:Content-Type,Authorization,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers}
+  exposed-headers: ${CORS_EXPOSED_HEADERS:Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Location,X-Total-Count}
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+  max-age: ${CORS_MAX_AGE:3600}

@@ -1,0 +1,47 @@
+# ========================================
+# CONFIGURACIÓN DE DESARROLLO LOCAL
+# Sobrescribe application.yml para desarrollo
+# ========================================
+
+# ----------------------------------------
+# BASE DE DATOS H2 PARA DESARROLLO
+# ----------------------------------------
+spring:
+  datasource:
+    url: jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)
+    driver-class-name: org.h2.Driver
+    username: dev_user
+    password: dev_secure_password_2025
+  
+  # H2 Console habilitada
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  
+  # JPA para desarrollo
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+# ----------------------------------------
+# LOGGING DETALLADO
+# ----------------------------------------
+logging:
+  level:
+    '[com.ejemplo]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.hibernate.SQL]': DEBUG
+    root: INFO
+
+# ----------------------------------------
+# SWAGGER HABILITADO
+# ----------------------------------------
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
