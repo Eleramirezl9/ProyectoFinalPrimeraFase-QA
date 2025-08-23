@@ -22,26 +22,29 @@ Microservicio REST desarrollado con Spring Boot para la evaluación de calidad d
 
 ## Estructura del Proyecto
 ```
-microservicio-iso25010/
-├── src/
-│   ├── main/
-│   │   ├── java/com/ejemplo/
-│   │   │   ├── config/          # Configuraciones
-│   │   │   ├── controller/      # Controladores REST
-│   │   │   ├── dto/            # DTOs para requests/responses
-│   │   │   ├── exception/      # Manejo de errores
-│   │   │   ├── model/          # Entidades JPA
-│   │   │   ├── repository/     # Repositorios JPA
-│   │   │   ├── service/        # Servicios de negocio
-│   │   │   └── MicroservicioApplication.java
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── data.sql
-│   │       └── messages.properties
-│   └── test/                   # Pruebas unitarias
-├── docs/                       # Documentación
-├── pom.xml
-└── README.md
+├──EntregaFase I/
+│  ├──documentacion-PDF/
+│      │──API_Documentation.dpf completo                   # Documentación
+│  │──microservicio-iso25010/
+│      ├── src/
+│      │   ├── main/
+│      │   │   ├── java/com/ejemplo/
+│      │   │   │   ├── config/          # Configuraciones
+│      │   │   │   ├── controller/      # Controladores REST
+│      │   │   │   ├── dto/            # DTOs para requests/responses
+│      │   │   │   ├── exception/      # Manejo de errores
+│      │   │   │   ├── model/          # Entidades JPA
+│      │   │   │   ├── repository/     # Repositorios JPA
+│      │   │   │   ├── service/        # Servicios de negocio
+│      │   │   │   └── MicroservicioApplication.java
+│      │   │   └── resources/
+│      │   │       ├── application.yml
+│      │   │       ├── data.sql
+│      │   │       └── messages.properties
+│      │   └── test/                   # Pruebas unitarias
+│      ├── 
+│      ├── pom.xml
+│──────────────────────────────────────────────   
 ```
 
 ## Requisitos Previos
@@ -53,7 +56,7 @@ microservicio-iso25010/
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Eleramirezl9/ProyectoFinalPrimeraFase-QA.git
 cd microservicio-iso25010
 ```
 
@@ -107,13 +110,18 @@ Para acceder a la consola H2:
 - `PUT /api/pedidos/{id}` - Actualizar pedido
 - `DELETE /api/pedidos/{id}` - Eliminar pedido
 
+<<<<<<< HEAD
 ## Documentación Adicional
 - [Casos de Prueba](documentacion-PDF/API_Documentation%20completo.pdf)
 - [Documentación API](docs/API_Documentation.pdf)
 - [Evaluación ISO 25010](docs/Evaluacion_ISO_25010.pdf)
+=======
+## Documentación completa
+- [Casos de Prueba, Documentación API, Evaluación ISO 25010](documentacion-PDF/API_Documentation%20completo.pdf)
+>>>>>>> 3bcfe0f5ed3984d22d9a35896907fa5d193d6b8a
 
 ## Autor
-**Estudiante Universidad Mariano Gálvez**
+**Estudiantes de la Universidad Mariano Gálvez**
 - Curso: Aseguramiento de la Calidad de Software
 - Proyecto: Evaluación ISO/IEC 25010
 
