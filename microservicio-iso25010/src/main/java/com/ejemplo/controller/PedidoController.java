@@ -3,7 +3,6 @@ package com.ejemplo.controller;
 import com.ejemplo.model.Pedido;
 import com.ejemplo.model.Usuario;
 import com.ejemplo.model.Producto;
-import com.ejemplo.service.UsuarioService;
 import com.ejemplo.service.ProductoService;
 import com.ejemplo.repository.PedidoRepository;
 import com.ejemplo.repository.UsuarioRepository;
@@ -16,9 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,29 +36,50 @@ import java.util.List;
 @RestController
 @RequestMapping("/pedidos")
 @Tag(name = "Pedidos", description = "API para la gestión de pedidos del sistema")
-@CrossOrigin(origins = "*")
 public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
-    @Autowired
-    private PedidoRepository pedidoRepository;
     
-    @Autowired
-    private UsuarioService usuarioService;
+    private final PedidoRepository pedidoRepository;
+    private final ProductoService productoService;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private ProductoService productoService;
-    
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    public PedidoController(PedidoRepository pedidoRepository, 
+                           ProductoService productoService, 
+                           UsuarioRepository usuarioRepository) {
+        this.pedidoRepository = pedidoRepository;
+        this.productoService = productoService;
+        this.usuarioRepository = usuarioRepository;
+    }
 
     /**
-     * DTO para crear pedidos
+     * Record para estadísticas de pedidos
+     */
+    public record EstadisticasPedidos(
+        long total,
+        long pendientes, 
+        long confirmados,
+        long entregados,
+        long cancelados,
+        BigDecimal ventasTotal
+    ) {}
+
+    /**
+     * DTO para crear pedidos con validaciones completas
      */
     public static class CrearPedidoRequest {
+        @NotNull(message = "El ID del usuario es obligatorio")
         private Long usuarioId;
+        
+        @NotNull(message = "El ID del producto es obligatorio")
         private Long productoId;
+        
+        @NotNull(message = "La cantidad es obligatoria")
+        @Min(value = 1, message = "La cantidad debe ser mayor a 0")
+        @Max(value = 100, message = "La cantidad no puede exceder 100 unidades por pedido")
         private Integer cantidad;
+        
+        @Size(max = 500, message = "Las observaciones no pueden exceder 500 caracteres")
         private String observaciones;
 
         // Getters y Setters
@@ -392,7 +412,7 @@ public class PedidoController {
         @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas exitosamente"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<Object> obtenerEstadisticas() {
+    public ResponseEntity<EstadisticasPedidos> obtenerEstadisticas() {
         logger.info("GET /pedidos/estadisticas - Obteniendo estadísticas de pedidos");
         
         long totalPedidos = pedidoRepository.count();
@@ -402,16 +422,17 @@ public class PedidoController {
         long pedidosCancelados = pedidoRepository.countByEstado(Pedido.EstadoPedido.CANCELADO);
         BigDecimal totalVentas = pedidoRepository.calcularTotalGeneralVentas();
         
-        var estadisticas = new Object() {
-            public final long total = totalPedidos;
-            public final long pendientes = pedidosPendientes;
-            public final long confirmados = pedidosConfirmados;
-            public final long entregados = pedidosEntregados;
-            public final long cancelados = pedidosCancelados;
-            public final BigDecimal ventasTotal = totalVentas;
-        };
+        EstadisticasPedidos estadisticas = new EstadisticasPedidos(
+            totalPedidos,
+            pedidosPendientes,
+            pedidosConfirmados,
+            pedidosEntregados,
+            pedidosCancelados,
+            totalVentas
+        );
         
-        logger.info("Estadísticas: Total={}, Pendientes={}, Confirmados={}, Entregados={}, Cancelados={}, Ventas={}",totalPedidos, pedidosPendientes, pedidosConfirmados, pedidosEntregados, pedidosCancelados, totalVentas);
+        logger.info("Estadísticas: Total={}, Pendientes={}, Confirmados={}, Entregados={}, Cancelados={}, Ventas={}", 
+                   totalPedidos, pedidosPendientes, pedidosConfirmados, pedidosEntregados, pedidosCancelados, totalVentas);
         return ResponseEntity.ok(estadisticas);
     }
 }

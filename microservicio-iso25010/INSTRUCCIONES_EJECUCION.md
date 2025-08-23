@@ -17,7 +17,7 @@
 Después de instalar Java, abre una nueva ventana de PowerShell y ejecuta:
 ```powershell
 java -version
-```
+    ```
 
 Deberías ver algo como:
 ```

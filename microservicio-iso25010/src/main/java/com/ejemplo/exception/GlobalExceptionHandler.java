@@ -105,9 +105,11 @@ public class GlobalExceptionHandler {
         
         logger.warn("Error de tipo de argumento: {}", ex.getMessage());
         
+        Class<?> requiredType = ex.getRequiredType();
+        String typeName = (requiredType != null) ? requiredType.getSimpleName() : "unknown";
         String message = String.format("El parámetro '%s' debe ser de tipo %s", 
             ex.getName(), 
-            ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
+            typeName);
         
         ErrorDTO errorDTO = ErrorDTO.badRequest(
             message,

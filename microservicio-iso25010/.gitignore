@@ -107,3 +107,6 @@ application-local.yml
 application-dev.yml
 logs/
 
+# Claude Code files
+CLAUDE.md
+

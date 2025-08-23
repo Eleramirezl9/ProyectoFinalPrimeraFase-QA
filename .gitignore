@@ -1,0 +1,12 @@
+# Claude Code files
+CLAUDE.md
+
+# Archivos temporales y de configuración
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# Archivos de documentación generados automáticamente
+*.pdf~
+*.docx~

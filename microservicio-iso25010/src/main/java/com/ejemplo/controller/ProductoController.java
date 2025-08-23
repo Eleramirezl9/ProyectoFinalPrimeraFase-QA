@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +30,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/productos")
 @Tag(name = "Productos", description = "API para la gestión del catálogo de productos")
-@CrossOrigin(origins = "*")
 public class ProductoController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
-    @Autowired
-    private ProductoService productoService;
+    private final ProductoService productoService;
+
+    public ProductoController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
 
     /**
      * Obtiene todos los productos
@@ -163,7 +165,8 @@ public class ProductoController {
     })
     public ResponseEntity<List<Producto>> buscarPorNombre(
             @Parameter(description = "Nombre a buscar", required = true, example = "Laptop")
-            @RequestParam String nombre) {
+            @RequestParam @NotBlank(message = "El nombre a buscar no puede estar vacío") 
+            @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres") String nombre) {
         logger.info("GET /productos/buscar?nombre={} - Buscando productos por nombre", nombre);
         List<Producto> productos = productoService.buscarPorNombre(nombre);
         logger.info("Se encontraron {} productos con nombre: {}", productos.size(), nombre);

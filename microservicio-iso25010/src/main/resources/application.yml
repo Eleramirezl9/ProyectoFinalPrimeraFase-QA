@@ -2,14 +2,27 @@ server:
   port: 8080
   servlet:
     context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   application:
     name: microservicio-iso25010
   
+  # Configuración HTTP y codificación
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
+  
   # Configuración de base de datos H2
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)
     driver-class-name: org.h2.Driver
     username: sa
     password: password
@@ -18,11 +31,20 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        '[format_sql]': true
+        connection:
+          CharSet: utf8mb4
+          characterEncoding: utf8
+          useUnicode: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        default_schema: PUBLIC
+    defer-datasource-initialization: true
   
   # Configuración H2 Console
   h2:
@@ -38,14 +60,15 @@ spring:
       mode: always
       data-locations: classpath:data.sql
       continue-on-error: true
+      encoding: UTF-8
 
 # Configuración de logging
 logging:
   level:
-    com.ejemplo: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    '[com.ejemplo]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
 
 # Configuración de SpringDoc OpenAPI
 springdoc:
@@ -54,15 +77,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
-  info:
-    title: Microservicio ISO/IEC 25010
-    description: API REST para evaluación de calidad de software según ISO/IEC 25010
-    version: 1.0.0
-    contact:
-      name: Estudiante Mariano Gálvez
-      email: estudiante@umg.edu.gt
 
-# Configuración de gestión y monitoreo
+# Configuración de gestión y monitoreo (Spring Boot Actuator)
 management:
   endpoints:
     web:
@@ -72,3 +88,6 @@ management:
     health:
       show-details: always
 
+# Configuración personalizada de CORS
+# Esta configuración es leída por CorsConfig.java mediante valores por defecto
+# Las URLs permitidas están definidas en CorsConfig.java

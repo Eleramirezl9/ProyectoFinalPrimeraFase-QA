@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +29,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/usuarios")
 @Tag(name = "Usuarios", description = "API para la gestión de usuarios del sistema")
-@CrossOrigin(origins = "*")
 public class UsuarioController {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
+
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+    /**
+     * Record para estadísticas de usuarios
+     */
+    public record EstadisticasUsuarios(
+        long total,
+        long activos,
+        long inactivos,
+        double porcentajeActivos
+    ) {}
 
     /**
      * Obtiene todos los usuarios
@@ -162,7 +174,8 @@ public class UsuarioController {
     })
     public ResponseEntity<UsuarioDTO> buscarPorEmail(
             @Parameter(description = "Email del usuario", required = true, example = "usuario@ejemplo.com")
-            @PathVariable String email) {
+            @PathVariable @Email(message = "El formato del email no es válido") 
+            @NotBlank(message = "El email no puede estar vacío") String email) {
         logger.info("GET /usuarios/email/{} - Buscando usuario por email", email);
         UsuarioDTO usuario = usuarioService.buscarPorEmail(email);
         return ResponseEntity.ok(usuario);
@@ -183,7 +196,8 @@ public class UsuarioController {
     })
     public ResponseEntity<List<UsuarioDTO>> buscarPorNombre(
             @Parameter(description = "Nombre a buscar", required = true, example = "Juan")
-            @RequestParam String nombre) {
+            @RequestParam @NotBlank(message = "El nombre a buscar no puede estar vacío")
+            @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres") String nombre) {
         logger.info("GET /usuarios/buscar?nombre={} - Buscando usuarios por nombre", nombre);
         List<UsuarioDTO> usuarios = usuarioService.buscarPorNombre(nombre);
         logger.info("Se encontraron {} usuarios con nombre: {}", usuarios.size(), nombre);
@@ -304,19 +318,20 @@ public class UsuarioController {
         @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas exitosamente"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<Object> obtenerEstadisticas() {
+    public ResponseEntity<EstadisticasUsuarios> obtenerEstadisticas() {
         logger.info("GET /usuarios/estadisticas - Obteniendo estadísticas de usuarios");
         
         long totalUsuarios = usuarioService.obtenerTodos().size();
         long usuariosActivos = usuarioService.contarUsuariosActivos();
         long usuariosInactivos = totalUsuarios - usuariosActivos;
+        double porcentajeActivos = totalUsuarios > 0 ? (double) usuariosActivos / totalUsuarios * 100 : 0;
         
-        var estadisticas = new Object() {
-            public final long total = totalUsuarios;
-            public final long activos = usuariosActivos;
-            public final long inactivos = usuariosInactivos;
-            public final double porcentajeActivos = totalUsuarios > 0 ? (double) usuariosActivos / totalUsuarios * 100 : 0;
-        };
+        EstadisticasUsuarios estadisticas = new EstadisticasUsuarios(
+            totalUsuarios,
+            usuariosActivos, 
+            usuariosInactivos,
+            porcentajeActivos
+        );
         
         logger.info("Estadísticas: Total={}, Activos={}, Inactivos={}", totalUsuarios, usuariosActivos, usuariosInactivos);
         return ResponseEntity.ok(estadisticas);

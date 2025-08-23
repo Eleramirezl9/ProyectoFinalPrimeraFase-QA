@@ -52,7 +52,7 @@ public class H2ConsoleConfig {
                 
                 // Permitir frames para la consola H2 (necesario para su interfaz web)
                 .headers(headers -> headers
-                    .frameOptions().sameOrigin())
+                    .frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 
                 .build();
     }

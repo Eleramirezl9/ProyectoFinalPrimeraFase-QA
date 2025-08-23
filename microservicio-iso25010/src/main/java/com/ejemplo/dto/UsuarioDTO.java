@@ -1,19 +1,15 @@
 package com.ejemplo.dto;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
-
 /**
  * DTO para la entidad Usuario
  * Utilizado para transferencia de datos en requests y responses
- * 
  * @author Estudiante Universidad Mariano Gálvez
  * @version 1.0.0
  */
 public class UsuarioDTO {
-
     private Long id;
 
     @NotBlank(message = "El nombre es obligatorio")
@@ -53,8 +49,7 @@ public class UsuarioDTO {
         this.telefono = telefono;
     }
 
-    public UsuarioDTO(Long id, String nombre, String apellido, String email, String telefono, 
-                     Boolean activo, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
+    public UsuarioDTO(Long id, String nombre, String apellido, String email, String telefono,Boolean activo, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
