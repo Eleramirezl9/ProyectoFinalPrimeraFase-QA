@@ -129,13 +129,17 @@ nohup.out
 # ========================================
 # ARCHIVOS DE DESARROLLO
 # ========================================
-# Claude Code files
-CLAUDE.md
-
 # Archivos de respaldo y temporales
 *.backup
 *.tmp
 .tmp/
+
+# Maven descargado localmente
+apache-maven-*/
+maven.zip
+
+# Claude Code documentation (no commitear)
+CLAUDE.md
 
 # ========================================
 # CERTIFICADOS Y LLAVES (SEGURIDAD)

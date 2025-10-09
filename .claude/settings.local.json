@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(./mvnw.cmd clean compile)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
