@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - maven_cache:/root/.m2
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    restart: unless-stopped
+
+  microservicio:
+    build:
+      context: ./microservicio-iso25010
+      dockerfile: Dockerfile
+    container_name: microservicio-app
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+    restart: unless-stopped
+    depends_on:
+      - jenkins
+
+volumes:
+  jenkins_home:
+    driver: local
+  maven_cache:
+    driver: local
