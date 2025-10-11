@@ -105,7 +105,7 @@ public class PedidoController {
     })
     public ResponseEntity<List<Pedido>> obtenerTodos() {
         logger.info("GET /pedidos - Obteniendo todos los pedidos");
-        List<Pedido> pedidos = pedidoRepository.findAll();
+        List<Pedido> pedidos = pedidoRepository.findAllWithRelations();
         logger.info("Se encontraron {} pedidos", pedidos.size());
         return ResponseEntity.ok(pedidos);
     }
@@ -126,7 +126,7 @@ public class PedidoController {
             @Parameter(description = "ID único del pedido", required = true, example = "1")
             @PathVariable Long id) {
         logger.info("GET /pedidos/{} - Obteniendo pedido por ID", id);
-        Pedido pedido = pedidoRepository.findById(id)
+        Pedido pedido = pedidoRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
         logger.info("Pedido encontrado: ID={}, Estado={}", pedido.getId(), pedido.getEstado());
         return ResponseEntity.ok(pedido);

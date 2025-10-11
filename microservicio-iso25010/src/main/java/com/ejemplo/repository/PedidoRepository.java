@@ -34,7 +34,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
      * @param usuarioId ID del usuario
      * @return Lista de pedidos del usuario
      */
-    List<Pedido> findByUsuarioId(Long usuarioId);
+    @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.usuario LEFT JOIN FETCH p.producto WHERE p.usuario.id = :usuarioId")
+    List<Pedido> findByUsuarioId(@Param("usuarioId") Long usuarioId);
 
     /**
      * Busca pedidos por producto
@@ -48,14 +49,16 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
      * @param productoId ID del producto
      * @return Lista de pedidos del producto
      */
-    List<Pedido> findByProductoId(Long productoId);
+    @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.usuario LEFT JOIN FETCH p.producto WHERE p.producto.id = :productoId")
+    List<Pedido> findByProductoId(@Param("productoId") Long productoId);
 
     /**
      * Busca pedidos por estado
      * @param estado Estado del pedido
      * @return Lista de pedidos con el estado especificado
      */
-    List<Pedido> findByEstado(Pedido.EstadoPedido estado);
+    @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.usuario LEFT JOIN FETCH p.producto WHERE p.estado = :estado")
+    List<Pedido> findByEstado(@Param("estado") Pedido.EstadoPedido estado);
 
     /**
      * Busca pedidos pendientes
@@ -180,5 +183,20 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
      */
     @Query("SELECT p FROM Pedido p WHERE p.estado IN ('PENDIENTE', 'CONFIRMADO')")
     List<Pedido> findPedidosQuePuedenSerCancelados();
+
+    /**
+     * Busca pedido por ID con fetch EAGER de relaciones
+     * @param id ID del pedido
+     * @return Pedido con relaciones cargadas
+     */
+    @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.usuario LEFT JOIN FETCH p.producto WHERE p.id = :id")
+    java.util.Optional<Pedido> findByIdWithRelations(@Param("id") Long id);
+
+    /**
+     * Obtiene todos los pedidos con relaciones cargadas
+     * @return Lista de todos los pedidos con relaciones
+     */
+    @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.usuario LEFT JOIN FETCH p.producto")
+    List<Pedido> findAllWithRelations();
 }
 
