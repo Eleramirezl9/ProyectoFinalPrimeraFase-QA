@@ -23,8 +23,7 @@ pipeline {
             steps {
                 echo '🔨 Compilando proyecto con Maven...'
                 dir('microservicio-iso25010') {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean compile'
+                    sh 'mvn clean compile'
                 }
             }
         }
@@ -33,7 +32,7 @@ pipeline {
             steps {
                 echo '🧪 Ejecutando tests...'
                 dir('microservicio-iso25010') {
-                    sh './mvnw test'
+                    sh 'mvn test'
                 }
             }
             post {
@@ -47,7 +46,7 @@ pipeline {
             steps {
                 echo '📦 Empaquetando aplicación...'
                 dir('microservicio-iso25010') {
-                    sh './mvnw package -DskipTests'
+                    sh 'mvn package -DskipTests'
                 }
             }
         }
@@ -58,7 +57,7 @@ pipeline {
                 dir('microservicio-iso25010') {
                     withSonarQubeEnv('SonarQube') {
                         sh """
-                            ./mvnw sonar:sonar \
+                            mvn sonar:sonar \
                             -Dsonar.projectKey=Eleramirezl9_ProyectoFinalPrimeraFase-QA \
                             -Dsonar.organization=eleramirezl9 \
                             -Dsonar.host.url=https://sonarcloud.io
