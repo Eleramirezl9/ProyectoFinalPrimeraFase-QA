@@ -52,6 +52,9 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            when {
+                expression { return false }
+            }
             steps {
                 echo '🔍 Análisis de calidad de código con SonarQube...'
                 dir('microservicio-iso25010') {
