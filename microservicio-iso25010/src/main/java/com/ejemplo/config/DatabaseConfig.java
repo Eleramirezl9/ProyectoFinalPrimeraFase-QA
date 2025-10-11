@@ -96,6 +96,7 @@ public class DatabaseConfig {
     /**
      * Enmascara URLs sensibles para logging seguro
      */
+    @SuppressWarnings("java:S6437") // False positive: "password" is a search pattern, not a credential
     private String maskSensitiveUrl(String url) {
         if (url.contains("password")) {
             return url.replaceAll("password=[^;]+", "password=***");
