@@ -96,7 +96,7 @@ pipeline {
                     sh """
                         docker run -d \\
                         --name microservicio-app \\
-                        -p 8081:8080 \\
+                        -p 8080:8080 \\
                         -e SPRING_PROFILES_ACTIVE=prod \\
                         ${DOCKER_IMAGE}:latest
                     """
@@ -108,15 +108,14 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline ejecutado exitosamente!'
-            echo '🌐 Aplicación disponible en: http://localhost:8081/api'
-            echo '📖 Swagger UI: http://localhost:8081/api/swagger-ui.html'
+            echo '🌐 Aplicación disponible en: http://localhost:8080/api'
+            echo '📖 Swagger UI: http://localhost:8080/api/swagger-ui.html'
         }
         failure {
             echo '❌ Pipeline falló. Revisa los logs.'
         }
         always {
-            echo '🧹 Limpiando workspace...'
-            cleanWs()
+            echo '🧹 Pipeline finalizado.'
         }
     }
 }
