@@ -23,7 +23,8 @@ pipeline {
             steps {
                 echo '🔨 Compilando proyecto con Maven...'
                 dir('microservicio-iso25010') {
-                    bat './mvnw.cmd clean compile'
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean compile'
                 }
             }
         }
@@ -32,7 +33,7 @@ pipeline {
             steps {
                 echo '🧪 Ejecutando tests...'
                 dir('microservicio-iso25010') {
-                    bat './mvnw.cmd test'
+                    sh './mvnw test'
                 }
             }
             post {
@@ -46,7 +47,7 @@ pipeline {
             steps {
                 echo '📦 Empaquetando aplicación...'
                 dir('microservicio-iso25010') {
-                    bat './mvnw.cmd package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -56,10 +57,10 @@ pipeline {
                 echo '🔍 Análisis de calidad de código con SonarQube...'
                 dir('microservicio-iso25010') {
                     withSonarQubeEnv('SonarQube') {
-                        bat """
-                            ./mvnw.cmd sonar:sonar ^
-                            -Dsonar.projectKey=Eleramirezl9_ProyectoFinalPrimeraFase-QA ^
-                            -Dsonar.organization=eleramirezl9 ^
+                        sh """
+                            ./mvnw sonar:sonar \
+                            -Dsonar.projectKey=Eleramirezl9_ProyectoFinalPrimeraFase-QA \
+                            -Dsonar.organization=eleramirezl9 \
                             -Dsonar.host.url=https://sonarcloud.io
                         """
                     }
@@ -72,8 +73,8 @@ pipeline {
                 echo '🐳 Construyendo imagen Docker...'
                 dir('microservicio-iso25010') {
                     script {
-                        bat "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                        bat "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
+                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
                     }
                 }
             }
@@ -84,17 +85,17 @@ pipeline {
                 echo '🚀 Desplegando aplicación...'
                 script {
                     // Detener contenedor anterior si existe
-                    bat '''
-                        docker stop microservicio-app 2>nul || echo No previous container
-                        docker rm microservicio-app 2>nul || echo No previous container to remove
+                    sh '''
+                        docker stop microservicio-app 2>/dev/null || echo "No previous container"
+                        docker rm microservicio-app 2>/dev/null || echo "No previous container to remove"
                     '''
 
                     // Ejecutar nuevo contenedor
-                    bat """
-                        docker run -d ^
-                        --name microservicio-app ^
-                        -p 8081:8080 ^
-                        -e SPRING_PROFILES_ACTIVE=prod ^
+                    sh """
+                        docker run -d \\
+                        --name microservicio-app \\
+                        -p 8081:8080 \\
+                        -e SPRING_PROFILES_ACTIVE=prod \\
                         ${DOCKER_IMAGE}:latest
                     """
                 }
