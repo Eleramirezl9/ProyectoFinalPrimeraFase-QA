@@ -12,12 +12,19 @@ import java.util.Optional;
 /**
  * Repositorio para la entidad Usuario
  * Proporciona operaciones CRUD y consultas personalizadas
- * 
+ *
  * @author Estudiante Universidad Mariano Gálvez
- * @version 1.0.0
+ * @version 2.0.0
  */
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
+    /**
+     * Busca un usuario por su username (para autenticación)
+     * @param username Username del usuario
+     * @return Optional con el usuario si existe
+     */
+    Optional<Usuario> findByUsername(String username);
 
     /**
      * Busca un usuario por su email
@@ -25,6 +32,13 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @return Optional con el usuario si existe
      */
     Optional<Usuario> findByEmail(String email);
+
+    /**
+     * Verifica si existe un usuario con el username especificado
+     * @param username Username a verificar
+     * @return true si existe, false en caso contrario
+     */
+    boolean existsByUsername(String username);
 
     /**
      * Verifica si existe un usuario con el email especificado

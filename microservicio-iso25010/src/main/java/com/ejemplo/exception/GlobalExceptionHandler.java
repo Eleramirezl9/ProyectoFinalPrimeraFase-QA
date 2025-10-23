@@ -17,6 +17,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -180,15 +183,50 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorDTO> handleIllegalStateException(
             IllegalStateException ex, WebRequest request) {
-        
+
         logger.warn("Estado ilegal: {}", ex.getMessage());
-        
+
         ErrorDTO errorDTO = ErrorDTO.conflict(
             ex.getMessage() != null ? ex.getMessage() : "Estado inválido para la operación",
             request.getDescription(false).replace("uri=", "")
         );
-        
+
         return new ResponseEntity<>(errorDTO, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Maneja errores de acceso denegado (403 Forbidden)
+     * Proporciona un mensaje descriptivo sobre por qué no se tiene acceso
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDTO> handleAccessDeniedException(
+            AccessDeniedException ex, WebRequest request) {
+
+        // Obtener información del usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth != null ? auth.getName() : "usuario desconocido";
+        String roles = auth != null && auth.getAuthorities() != null
+            ? auth.getAuthorities().stream()
+                .map(authority -> authority.getAuthority().replace("ROLE_", ""))
+                .collect(Collectors.joining(", "))
+            : "sin roles";
+
+        logger.warn("Acceso denegado para usuario '{}' con roles [{}] al intentar acceder a: {}",
+            username, roles, request.getDescription(false));
+
+        // Mensaje descriptivo personalizado
+        String message = String.format(
+            "Acceso denegado. Su rol actual (%s) no tiene permisos para realizar esta operación. " +
+            "Contacte al administrador si cree que debería tener acceso.",
+            roles
+        );
+
+        ErrorDTO errorDTO = ErrorDTO.forbidden(
+            message,
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return new ResponseEntity<>(errorDTO, HttpStatus.FORBIDDEN);
     }
 
     /**

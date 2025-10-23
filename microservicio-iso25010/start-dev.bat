@@ -42,6 +42,9 @@ echo =================================================
 
 REM Ejecutar aplicación
 echo 🚀 Iniciando aplicación...
-mvnw.cmd spring-boot:run
+echo.
+
+REM Usar Maven global directamente (más confiable)
+mvn spring-boot:run
 
 pause

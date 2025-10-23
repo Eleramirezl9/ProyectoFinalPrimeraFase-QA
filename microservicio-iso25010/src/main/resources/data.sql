@@ -1,5 +1,6 @@
 -- =====================================================
 -- DATOS INICIALES PARA MICROSERVICIO ISO/IEC 25010
+-- CON AUTENTICACIÓN Y AUTORIZACIÓN
 -- =====================================================
 -- Este archivo contiene datos de prueba para poblar la base de datos
 -- Se ejecuta automáticamente al iniciar la aplicación
@@ -10,20 +11,121 @@ SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
 -- =====================================================
--- USUARIOS DE PRUEBA
+-- PERMISOS (Granular Permissions)
 -- =====================================================
 
-INSERT INTO usuarios (nombre, apellido, email, telefono, activo, fecha_creacion) VALUES
-('Juan Carlos', 'García López', 'juan.garcia@email.com', '50212345678', true, DATEADD('DAY', -30, CURRENT_TIMESTAMP)),
-('María Elena', 'Rodríguez Pérez', 'maria.rodriguez@email.com', '50298765432', true, DATEADD('DAY', -25, CURRENT_TIMESTAMP)),
-('Carlos Alberto', 'Martínez Silva', 'carlos.martinez@email.com', '50234567890', true, DATEADD('DAY', -20, CURRENT_TIMESTAMP)),
-('Ana Sofía', 'López Hernández', 'ana.lopez@email.com', '50287654321', true, DATEADD('DAY', -18, CURRENT_TIMESTAMP)),
-('Luis Fernando', 'Morales Castro', 'luis.morales@email.com', '50245678901', true, DATEADD('DAY', -15, CURRENT_TIMESTAMP)),
-('Patricia Isabel', 'Vásquez Ruiz', 'patricia.vasquez@email.com', '50276543210', false, DATEADD('DAY', -12, CURRENT_TIMESTAMP)),
-('Roberto Miguel', 'Jiménez Torres', 'roberto.jimenez@email.com', '50256789012', true, DATEADD('DAY', -10, CURRENT_TIMESTAMP)),
-('Carmen Rosa', 'Flores Mendoza', 'carmen.flores@email.com', '50265432109', true, DATEADD('DAY', -8, CURRENT_TIMESTAMP)),
-('Diego Alejandro', 'Castillo Vargas', 'diego.castillo@email.com', '50267890123', true, DATEADD('DAY', -5, CURRENT_TIMESTAMP)),
-('Lucía Fernanda', 'Ramírez Aguilar', 'lucia.ramirez@email.com', '50254321098', true, DATEADD('DAY', -2, CURRENT_TIMESTAMP));
+INSERT INTO permissions (name, description) VALUES
+('USUARIO_READ', 'Leer información de usuarios'),
+('USUARIO_CREATE', 'Crear nuevos usuarios'),
+('USUARIO_UPDATE', 'Actualizar información de usuarios'),
+('USUARIO_DELETE', 'Eliminar usuarios'),
+('PRODUCTO_READ', 'Leer información de productos'),
+('PRODUCTO_CREATE', 'Crear nuevos productos'),
+('PRODUCTO_UPDATE', 'Actualizar información de productos'),
+('PRODUCTO_DELETE', 'Eliminar productos'),
+('PEDIDO_READ', 'Leer información de pedidos'),
+('PEDIDO_CREATE', 'Crear nuevos pedidos'),
+('PEDIDO_UPDATE', 'Actualizar estado de pedidos'),
+('PEDIDO_DELETE', 'Eliminar pedidos');
+
+-- =====================================================
+-- ROLES (User Roles)
+-- =====================================================
+
+INSERT INTO roles (name, description) VALUES
+('ADMIN', 'Administrador con acceso total al sistema'),
+('MANAGER', 'Gestor con permisos de administración limitada'),
+('CLIENTE', 'Cliente con permisos para consultar y realizar pedidos');
+
+-- =====================================================
+-- ASIGNACIÓN ROLES -> PERMISOS (role_permissions)
+-- =====================================================
+
+-- ADMIN: Todos los permisos
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.name = 'ADMIN';
+
+-- MANAGER: Permisos de lectura y escritura, sin eliminación
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.name = 'MANAGER'
+  AND p.name IN (
+    'USUARIO_READ', 'USUARIO_CREATE', 'USUARIO_UPDATE',
+    'PRODUCTO_READ', 'PRODUCTO_CREATE', 'PRODUCTO_UPDATE',
+    'PEDIDO_READ', 'PEDIDO_CREATE', 'PEDIDO_UPDATE'
+);
+
+-- CLIENTE: Solo lectura y creación de pedidos
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.name = 'CLIENTE'
+  AND p.name IN (
+    'USUARIO_READ',
+    'PRODUCTO_READ',
+    'PEDIDO_READ', 'PEDIDO_CREATE'
+);
+
+-- =====================================================
+-- USUARIOS CON AUTENTICACIÓN
+-- =====================================================
+-- Passwords (todos son "password123")
+-- Hash BCrypt generado con: new BCryptPasswordEncoder().encode("password123")
+-- Nota: El hash $2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e corresponde a "password123"
+
+INSERT INTO usuarios (nombre, apellido, username, email, password, telefono, activo, cuenta_no_expirada, cuenta_no_bloqueada, credenciales_no_expiradas, fecha_creacion) VALUES
+-- Administradores
+('Admin', 'Sistema', 'admin', 'admin@sistema.com', '$2a$10$Wk6.xosJh4tgCWsZ28nHYuytrAUWHrbKT2CLya1DjPXz7wnwJnMfy', '50212345678', true, true, true, true, DATEADD('DAY', -90, CURRENT_TIMESTAMP)),
+('Super', 'Admin', 'superadmin', 'superadmin@sistema.com', '$2a$10$Wk6.xosJh4tgCWsZ28nHYuytrAUWHrbKT2CLya1DjPXz7wnwJnMfy', '50298765432', true, true, true, true, DATEADD('DAY', -85, CURRENT_TIMESTAMP)),
+
+-- Gestores/Managers
+('María Elena', 'Rodríguez Pérez', 'mrodriguez', 'maria.rodriguez@empresa.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50234567890', true, true, true, true, DATEADD('DAY', -60, CURRENT_TIMESTAMP)),
+('Carlos Alberto', 'Martínez Silva', 'cmartinez', 'carlos.martinez@empresa.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50287654321', true, true, true, true, DATEADD('DAY', -55, CURRENT_TIMESTAMP)),
+
+-- Usuarios regulares
+('Juan Carlos', 'García López', 'jgarcia', 'juan.garcia@email.com', '$2a$10$Wk6.xosJh4tgCWsZ28nHYuytrAUWHrbKT2CLya1DjPXz7wnwJnMfy', '50245678901', true, true, true, true, DATEADD('DAY', -30, CURRENT_TIMESTAMP)),
+('Ana Sofía', 'López Hernández', 'alopez', 'ana.lopez@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50276543210', true, true, true, true, DATEADD('DAY', -25, CURRENT_TIMESTAMP)),
+('Luis Fernando', 'Morales Castro', 'lmorales', 'luis.morales@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50256789012', true, true, true, true, DATEADD('DAY', -20, CURRENT_TIMESTAMP)),
+('Patricia Isabel', 'Vásquez Ruiz', 'pvasquez', 'patricia.vasquez@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50265432109', true, true, true, true, DATEADD('DAY', -18, CURRENT_TIMESTAMP)),
+('Roberto Miguel', 'Jiménez Torres', 'rjimenez', 'roberto.jimenez@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50267890123', true, true, true, true, DATEADD('DAY', -15, CURRENT_TIMESTAMP)),
+('Carmen Rosa', 'Flores Mendoza', 'cflores', 'carmen.flores@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50254321098', true, true, true, true, DATEADD('DAY', -12, CURRENT_TIMESTAMP)),
+
+-- Usuario inactivo (para testing)
+('Usuario', 'Inactivo', 'inactivo', 'inactivo@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e', '50200000000', false, true, true, true, DATEADD('DAY', -100, CURRENT_TIMESTAMP));
+
+-- =====================================================
+-- ASIGNACIÓN USUARIOS -> ROLES (usuario_roles)
+-- =====================================================
+
+-- Asignar rol ADMIN
+INSERT INTO usuario_roles (usuario_id, role_id)
+SELECT u.id, r.id
+FROM usuarios u
+CROSS JOIN roles r
+WHERE u.username IN ('admin', 'superadmin')
+  AND r.name = 'ADMIN';
+
+-- Asignar rol MANAGER
+INSERT INTO usuario_roles (usuario_id, role_id)
+SELECT u.id, r.id
+FROM usuarios u
+CROSS JOIN roles r
+WHERE u.username IN ('mrodriguez', 'cmartinez')
+  AND r.name = 'MANAGER';
+
+-- Asignar rol CLIENTE a clientes regulares
+INSERT INTO usuario_roles (usuario_id, role_id)
+SELECT u.id, r.id
+FROM usuarios u
+CROSS JOIN roles r
+WHERE u.username IN ('jgarcia', 'alopez', 'lmorales', 'pvasquez', 'rjimenez', 'cflores', 'inactivo')
+  AND r.name = 'CLIENTE';
 
 -- =====================================================
 -- PRODUCTOS DE PRUEBA
@@ -48,69 +150,82 @@ INSERT INTO productos (nombre, descripcion, precio, stock, categoria, marca, act
 ('Libro: Clean Code', 'Guía completa para escribir código limpio y mantenible por Robert C. Martin', 299.99, 50, 'Libros y Educación', 'Prentice Hall', true, DATEADD('DAY', -6, CURRENT_TIMESTAMP)),
 ('Curso Online: Spring Boot Masterclass', 'Curso completo de desarrollo con Spring Boot, incluye certificado', 499.99, 100, 'Libros y Educación', 'TechAcademy', true, DATEADD('DAY', -4, CURRENT_TIMESTAMP)),
 ('Calculadora Científica Casio', 'Calculadora programable con pantalla gráfica, ideal para ingeniería', 399.99, 28, 'Libros y Educación', 'Casio', true, DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
-('Monitor Gaming 27 pulgadas', 'Monitor curvo con resolución 2K, 144Hz, tiempo de respuesta 1ms', 1899.99, 0, 'Electrónicos', 'ASUS', true, DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
-('Silla Ergonómica de Oficina', 'Silla con soporte lumbar, reposabrazos ajustables, base de aluminio', 1299.99, 0, 'Hogar y Jardín', 'Herman Miller', false, DATEADD('HOUR', -3, CURRENT_TIMESTAMP));
+('Monitor Gaming 27 pulgadas', 'Monitor curvo con resolución 2K, 144Hz, tiempo de respuesta 1ms', 1899.99, 5, 'Electrónicos', 'ASUS', true, DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
+('Silla Ergonómica de Oficina', 'Silla con soporte lumbar, reposabrazos ajustables, base de aluminio', 1299.99, 8, 'Hogar y Jardín', 'Herman Miller', true, DATEADD('HOUR', -3, CURRENT_TIMESTAMP));
 
 -- =====================================================
 -- PEDIDOS DE PRUEBA
 -- =====================================================
 
--- Pedidos pendientes (recientes, sin fecha_actualizacion)
+-- Pedidos pendientes
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido) VALUES
-(1, 1, 2, 2499.99, 4999.98, 'PENDIENTE', 'Pedido para regalo de cumpleaños', DATEADD('HOUR', -6, CURRENT_TIMESTAMP)),
-(2, 5, 1, 5999.99, 5999.99, 'PENDIENTE', 'Entrega preferiblemente en horario matutino', DATEADD('HOUR', -12, CURRENT_TIMESTAMP)),
-(3, 12, 1, 299.99, 299.99, 'PENDIENTE', NULL, DATEADD('DAY', -1, CURRENT_TIMESTAMP));
+(5, 1, 2, 2499.99, 4999.98, 'PENDIENTE', 'Pedido para regalo de cumpleaños', DATEADD('HOUR', -6, CURRENT_TIMESTAMP)),
+(6, 5, 1, 5999.99, 5999.99, 'PENDIENTE', 'Entrega preferiblemente en horario matutino', DATEADD('HOUR', -12, CURRENT_TIMESTAMP)),
+(7, 12, 1, 299.99, 299.99, 'PENDIENTE', NULL, DATEADD('DAY', -1, CURRENT_TIMESTAMP));
 
--- Pedidos confirmados (con fecha_actualizacion diferente)
+-- Pedidos confirmados
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido, fecha_actualizacion) VALUES
-(4, 2, 1, 4299.99, 4299.99, 'CONFIRMADO', 'Laptop para trabajo remoto', DATEADD('DAY', -3, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
-(5, 7, 1, 2799.99, 2799.99, 'CONFIRMADO', 'Aspiradora para casa nueva', DATEADD('DAY', -2, CURRENT_TIMESTAMP), DATEADD('HOUR', -18, CURRENT_TIMESTAMP)),
-(1, 15, 3, 199.99, 599.97, 'CONFIRMADO', 'Esterillas para clases de yoga', DATEADD('HOUR', -30, CURRENT_TIMESTAMP), DATEADD('HOUR', -8, CURRENT_TIMESTAMP));
+(8, 2, 1, 4299.99, 4299.99, 'CONFIRMADO', 'Laptop para trabajo remoto', DATEADD('DAY', -3, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
+(9, 7, 1, 2799.99, 2799.99, 'CONFIRMADO', 'Aspiradora para casa nueva', DATEADD('DAY', -2, CURRENT_TIMESTAMP), DATEADD('HOUR', -18, CURRENT_TIMESTAMP)),
+(5, 15, 3, 199.99, 599.97, 'CONFIRMADO', 'Esterillas para clases de yoga', DATEADD('HOUR', -30, CURRENT_TIMESTAMP), DATEADD('HOUR', -8, CURRENT_TIMESTAMP));
 
--- Pedidos en proceso (con fecha_actualizacion diferente)
+-- Pedidos en proceso
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido, fecha_actualizacion) VALUES
 (6, 4, 2, 1899.99, 3799.98, 'EN_PROCESO', 'Auriculares para oficina', DATEADD('DAY', -4, CURRENT_TIMESTAMP), DATEADD('DAY', -3, CURRENT_TIMESTAMP)),
 (7, 9, 1, 599.99, 599.99, 'EN_PROCESO', NULL, DATEADD('DAY', -3, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP));
 
--- Pedidos enviados (con fecha_actualizacion diferente)
+-- Pedidos enviados
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido, fecha_actualizacion) VALUES
 (8, 13, 1, 1999.99, 1999.99, 'ENVIADO', 'Reloj para maratón', DATEADD('DAY', -5, CURRENT_TIMESTAMP), DATEADD('DAY', -4, CURRENT_TIMESTAMP)),
-(2, 16, 1, 299.99, 299.99, 'ENVIADO', 'Libro de programación', DATEADD('DAY', -4, CURRENT_TIMESTAMP), DATEADD('DAY', -3, CURRENT_TIMESTAMP));
+(9, 16, 1, 299.99, 299.99, 'ENVIADO', 'Libro de programación', DATEADD('DAY', -4, CURRENT_TIMESTAMP), DATEADD('DAY', -3, CURRENT_TIMESTAMP));
 
--- Pedidos entregados (con fecha_entrega y fecha_actualizacion diferentes)
+-- Pedidos entregados
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido, fecha_entrega, fecha_actualizacion) VALUES
-(9, 6, 1, 1299.99, 1299.99, 'ENTREGADO', 'Cafetera entregada exitosamente', DATEADD('DAY', -8, CURRENT_TIMESTAMP), DATEADD('DAY', -6, CURRENT_TIMESTAMP), DATEADD('DAY', -6, CURRENT_TIMESTAMP)),
-(10, 11, 1, 3499.99, 3499.99, 'ENTREGADO', 'Bicicleta en perfecto estado', DATEADD('DAY', -12, CURRENT_TIMESTAMP), DATEADD('DAY', -9, CURRENT_TIMESTAMP), DATEADD('DAY', -9, CURRENT_TIMESTAMP)),
-(3, 14, 2, 899.99, 1799.98, 'ENTREGADO', 'Mancuernas para gimnasio casero', DATEADD('DAY', -7, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP)),
-(4, 18, 1, 399.99, 399.99, 'ENTREGADO', NULL, DATEADD('DAY', -16, CURRENT_TIMESTAMP), DATEADD('DAY', -13, CURRENT_TIMESTAMP), DATEADD('DAY', -13, CURRENT_TIMESTAMP));
+(10, 6, 1, 1299.99, 1299.99, 'ENTREGADO', 'Cafetera entregada exitosamente', DATEADD('DAY', -8, CURRENT_TIMESTAMP), DATEADD('DAY', -6, CURRENT_TIMESTAMP), DATEADD('DAY', -6, CURRENT_TIMESTAMP)),
+(5, 11, 1, 3499.99, 3499.99, 'ENTREGADO', 'Bicicleta en perfecto estado', DATEADD('DAY', -12, CURRENT_TIMESTAMP), DATEADD('DAY', -9, CURRENT_TIMESTAMP), DATEADD('DAY', -9, CURRENT_TIMESTAMP)),
+(7, 14, 2, 899.99, 1799.98, 'ENTREGADO', 'Mancuernas para gimnasio casero', DATEADD('DAY', -7, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP)),
+(8, 18, 1, 399.99, 399.99, 'ENTREGADO', NULL, DATEADD('DAY', -16, CURRENT_TIMESTAMP), DATEADD('DAY', -13, CURRENT_TIMESTAMP), DATEADD('DAY', -13, CURRENT_TIMESTAMP));
 
--- Pedidos cancelados (con fecha_actualizacion diferente)
+-- Pedidos cancelados
 INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, estado, observaciones, fecha_pedido, fecha_actualizacion) VALUES
-(5, 3, 1, 3899.99, 3899.99, 'CANCELADO', 'Cliente cambió de opinión', DATEADD('DAY', -6, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP)),
-(1, 8, 1, 899.99, 899.99, 'CANCELADO', 'Producto no disponible en el color solicitado', DATEADD('DAY', -9, CURRENT_TIMESTAMP), DATEADD('DAY', -8, CURRENT_TIMESTAMP));
+(9, 3, 1, 3899.99, 3899.99, 'CANCELADO', 'Cliente cambió de opinión', DATEADD('DAY', -6, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP)),
+(5, 8, 1, 899.99, 899.99, 'CANCELADO', 'Producto no disponible en el color solicitado', DATEADD('DAY', -9, CURRENT_TIMESTAMP), DATEADD('DAY', -8, CURRENT_TIMESTAMP));
 
 -- =====================================================
--- COMENTARIOS INFORMATIVOS
+-- INFORMACIÓN DE CREDENCIALES DE PRUEBA
 -- =====================================================
 
--- Los datos insertados incluyen:
--- ✅ 10 usuarios (9 activos, 1 inactivo) con fechas variadas usando DATEADD
--- ✅ 20 productos en 4 categorías diferentes con fechas escalonadas
--- ✅ 16 pedidos en todos los estados posibles con fechas realistas
--- ✅ Fechas de entrega solo en pedidos ENTREGADOS
--- ✅ Fechas de actualización diferentes para cada estado
--- ✅ Compatible con H2 Database usando DATEADD en lugar de INTERVAL
-
--- Timeline de pedidos:
--- PENDIENTE: hace 6h, 12h, 1 día (sin fecha_actualizacion)
--- CONFIRMADO: creados hace 3, 2 días y 30h, actualizados después
--- EN_PROCESO: creados hace 4, 3 días, actualizados después  
--- ENVIADO: creados hace 5, 4 días, actualizados después
--- ENTREGADO: creados hace 8-16 días, entregados hace 5-13 días
--- CANCELADO: creados hace 6, 9 días, cancelados después
-
--- Para acceder a la consola H2 y ver los datos:
--- URL: http://localhost:8080/api/h2-console
--- JDBC URL: jdbc:h2:mem:testdb
--- Username: sa
--- Password: password
+-- ✅ USUARIOS DISPONIBLES:
+--
+-- 🔴 ADMINISTRADORES (Rol: ADMIN):
+--    Username: admin          | Password: password123
+--    Username: superadmin     | Password: password123
+--
+-- 🟡 GESTORES (Rol: MANAGER):
+--    Username: mrodriguez     | Password: password123
+--    Username: cmartinez      | Password: password123
+--
+-- 🟢 CLIENTES (Rol: CLIENTE):
+--    Username: jgarcia        | Password: password123
+--    Username: alopez         | Password: password123
+--    Username: lmorales       | Password: password123
+--    Username: pvasquez       | Password: password123
+--    Username: rjimenez       | Password: password123
+--    Username: cflores        | Password: password123
+--
+-- ⚫ USUARIO INACTIVO (para testing):
+--    Username: inactivo       | Password: password123 (cuenta deshabilitada)
+--
+-- =====================================================
+-- RESUMEN DE DATOS
+-- =====================================================
+--
+-- ✅ 12 Permisos granulares
+-- ✅ 3 Roles (ADMIN, MANAGER, CLIENTE) con permisos asignados
+-- ✅ 11 Usuarios (2 admins, 2 managers, 7 clientes)
+-- ✅ 20 Productos en diferentes categorías
+-- ✅ 16 Pedidos en todos los estados posibles
+-- ✅ Passwords encriptados con BCrypt
+-- ✅ Relaciones ManyToMany entre usuarios-roles y roles-permisos
+--
+-- =====================================================

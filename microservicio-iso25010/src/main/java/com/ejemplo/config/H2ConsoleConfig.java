@@ -5,76 +5,34 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Configuración para habilitar y asegurar el acceso a la consola H2
  * Permite acceso a la interfaz web de H2 para desarrollo y pruebas
- * 
- * SEGURIDAD: Usa variables de entorno para credenciales y configuración
- * 
+ *
+ * NOTA: La configuración de seguridad ahora está en SecurityConfig.java
+ *
  * @author Estudiante Universidad Mariano Gálvez
- * @version 2.0.0 - Variables de Entorno Seguras
+ * @version 3.0.0 - Configuración de Seguridad movida a SecurityConfig
  */
 @Configuration
-@EnableWebSecurity
 @Profile({"dev", "test", "default"})
 public class H2ConsoleConfig {
 
     @Value("${DB_URL:jdbc:h2:mem:testdb}")
     private String dbUrl;
-    
+
     @Value("${DB_USERNAME:sa}")
     private String dbUsername;
-    
+
     @Value("${DB_PASSWORD:password}")
     private String dbPassword;
-    
+
     @Value("${SERVER_PORT:8080}")
     private String serverPort;
-    
+
     @Value("${CONTEXT_PATH:/api}")
     private String contextPath;
-
-    /**
-     * Configuración de seguridad para permitir acceso a la consola H2
-     * Desactiva CSRF y permite frames para la interfaz web de H2
-     */
-    @Bean
-    @ConditionalOnProperty(name = "spring.h2.console.enabled", havingValue = "true", matchIfMissing = true)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                // Desactivar CSRF para permitir el funcionamiento de la consola H2
-                .csrf(csrf -> csrf
-                    .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**"))
-                    .disable())
-                
-                // Configurar autorización de requests
-                .authorizeHttpRequests(auth -> auth
-                    // Permitir acceso público a la consola H2
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
-                    // Permitir acceso público a todos los endpoints de la API
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/api/**")).permitAll()
-                    // Permitir acceso público a Swagger UI
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/swagger-ui/**")).permitAll()
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/swagger-ui.html")).permitAll()
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/v3/api-docs/**")).permitAll()
-                    // Permitir acceso público a recursos estáticos
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/webjars/**")).permitAll()
-                    // Permitir acceso público a actuator endpoints
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/**")).permitAll()
-                    // Cualquier otra request requiere autenticación (aunque no hay autenticación configurada)
-                    .anyRequest().permitAll())
-                
-                // Permitir frames para la consola H2 (necesario para su interfaz web)
-                .headers(headers -> headers
-                    .frameOptions(frameOptions -> frameOptions.sameOrigin()))
-                
-                .build();
-    }
 
     /**
      * Bean de configuración adicional para desarrollo

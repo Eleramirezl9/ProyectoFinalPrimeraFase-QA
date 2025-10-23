@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "PasswordGenerator",
+            "request": "launch",
+            "mainClass": "com.ejemplo.util.PasswordGenerator",
+            "projectName": "microservicio-iso25010"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-MicroservicioApplication<microservicio-iso25010>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

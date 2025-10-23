@@ -1,9 +1,12 @@
 package com.ejemplo.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +30,9 @@ public class SwaggerConfig {
      */
     @Bean
     public OpenAPI customOpenAPI() {
+        // Nombre del esquema de seguridad
+        final String securitySchemeName = "bearerAuth";
+
         return new OpenAPI()
                 .info(apiInfo())
                 .servers(List.of(
@@ -34,10 +40,13 @@ public class SwaggerConfig {
                         .url("http://localhost:8080/api")
                         .description("Servidor de desarrollo local"),
                     new Server()
-                        .url("https://api.ejemplo.com")
+                        .url("https://api.ejemplo.com/api")
                         .description("Servidor de producción")
                 ))
                 .tags(List.of(
+                    new Tag()
+                        .name("Autenticación")
+                        .description("Endpoints para autenticación y registro de usuarios"),
                     new Tag()
                         .name("Usuarios")
                         .description("Operaciones relacionadas con la gestión de usuarios del sistema"),
@@ -47,7 +56,19 @@ public class SwaggerConfig {
                     new Tag()
                         .name("Pedidos")
                         .description("Operaciones relacionadas con la gestión de pedidos y ventas")
-                ));
+                ))
+                // Agregar configuración de seguridad JWT
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName,
+                                new SecurityScheme()
+                                        .name(securitySchemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("Ingresa el token JWT obtenido del endpoint /auth/login")
+                        )
+                );
     }
 
     /**

@@ -98,3 +98,10 @@ cors:
   exposed-headers: ${CORS_EXPOSED_HEADERS:Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Location,X-Total-Count}
   allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
   max-age: ${CORS_MAX_AGE:3600}
+
+# Configuración JWT
+jwt:
+  secret: ${JWT_SECRET:bXljb21wbGV4c2VjcmV0a2V5Zm9yand0dG9rZW5zaWdudGluZ21pY3Jvc2VydmljaW9pc28yNTAxMHByb3llY3R1bmd2bWFyaWFub2dhbHZleg==}
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-token:
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
