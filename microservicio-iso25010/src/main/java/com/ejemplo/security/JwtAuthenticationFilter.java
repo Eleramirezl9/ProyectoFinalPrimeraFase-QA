@@ -115,7 +115,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e) { 
             // Log del error (opcional)
             logger.error("Error al procesar el token JWT: " + e.getMessage());
         }
