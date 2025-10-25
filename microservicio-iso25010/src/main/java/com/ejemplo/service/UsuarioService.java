@@ -1,7 +1,10 @@
 package com.ejemplo.service;
 
+import com.ejemplo.dto.AssignRolesRequest;
 import com.ejemplo.dto.UsuarioDTO;
+import com.ejemplo.model.Role;
 import com.ejemplo.model.Usuario;
+import com.ejemplo.repository.RoleRepository;
 import com.ejemplo.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -11,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +35,9 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     /**
      * Obtiene todos los usuarios
@@ -249,6 +257,42 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public long contarUsuariosActivos() {
         return usuarioRepository.countUsuariosActivos();
+    }
+
+    /**
+     * Asigna roles a un usuario
+     * Solo ADMIN puede ejecutar esta operación
+     *
+     * @param id ID del usuario
+     * @param request Objeto con la lista de roles a asignar
+     * @return Usuario DTO con los roles actualizados
+     * @throws EntityNotFoundException si el usuario no existe
+     * @throws IllegalArgumentException si algún rol no existe
+     */
+    public UsuarioDTO asignarRoles(Long id, AssignRolesRequest request) {
+        logger.debug("Asignando roles al usuario con ID: {}", id);
+
+        // Buscar usuario
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + id));
+
+        // Buscar y validar roles
+        Set<Role> roles = new HashSet<>();
+        for (String roleName : request.getRoles()) {
+            Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + roleName));
+            roles.add(role);
+        }
+
+        // Limpiar roles actuales y asignar nuevos
+        usuario.getRoles().clear();
+        usuario.setRoles(roles);
+        usuario.setFechaActualizacion(LocalDateTime.now());
+
+        Usuario usuarioActualizado = usuarioRepository.save(usuario);
+        logger.info("Roles asignados exitosamente al usuario ID: {}. Roles: {}", id, request.getRoles());
+
+        return convertirADTO(usuarioActualizado);
     }
 
     // Métodos de conversión

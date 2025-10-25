@@ -74,32 +74,70 @@ Una vez iniciado, abre tu navegador y visita:
 
 ## 📡 Endpoints de la API
 
+### 🔐 Autenticación (JWT)
+| Método | Endpoint | Descripción | Acceso |
+|--------|----------|-------------|--------|
+| POST | `/api/auth/register` | Registrar nuevo usuario | Público |
+| POST | `/api/auth/login` | Iniciar sesión (obtener token) | Público |
+
+**Ejemplo de Login:**
+```json
+POST /api/auth/login
+{
+  "username": "admin",
+  "password": "password123"
+}
+```
+
+**Respuesta:**
+```json
+{
+  "token": "eyJhbGciOiJIUzM4NCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzM4NCJ9...",
+  "type": "Bearer",
+  "id": 1,
+  "username": "admin",
+  "roles": ["ADMIN"],
+  "expiresIn": 86400000
+}
+```
+
 ### 👥 Usuarios
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/usuarios` | Obtener todos los usuarios |
-| POST | `/api/usuarios` | Crear un nuevo usuario |
-| GET | `/api/usuarios/{id}` | Obtener un usuario específico |
-| PUT | `/api/usuarios/{id}` | Actualizar un usuario |
-| DELETE | `/api/usuarios/{id}` | Eliminar un usuario |
+| Método | Endpoint | Descripción | Roles Permitidos |
+|--------|----------|-------------|------------------|
+| GET | `/api/usuarios` | Obtener todos los usuarios | CLIENTE, MANAGER, ADMIN |
+| POST | `/api/usuarios` | Crear un nuevo usuario | MANAGER, ADMIN |
+| GET | `/api/usuarios/{id}` | Obtener un usuario específico | CLIENTE, MANAGER, ADMIN |
+| PUT | `/api/usuarios/{id}` | Actualizar un usuario | MANAGER, ADMIN |
+| PATCH | `/api/usuarios/{id}/roles` | **Asignar roles a usuario** | **ADMIN** |
+| DELETE | `/api/usuarios/{id}` | Eliminar un usuario | ADMIN |
+
+**Ejemplo - Asignar Roles (Solo ADMIN):**
+```json
+PATCH /api/usuarios/5/roles
+Authorization: Bearer {token}
+{
+  "roles": ["MANAGER"]
+}
+```
 
 ### 📦 Productos
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/productos` | Obtener todos los productos |
-| POST | `/api/productos` | Crear un nuevo producto |
-| GET | `/api/productos/{id}` | Obtener un producto específico |
-| PUT | `/api/productos/{id}` | Actualizar un producto |
-| DELETE | `/api/productos/{id}` | Eliminar un producto |
+| Método | Endpoint | Descripción | Roles Permitidos |
+|--------|----------|-------------|------------------|
+| GET | `/api/productos` | Obtener todos los productos | CLIENTE, MANAGER, ADMIN |
+| POST | `/api/productos` | Crear un nuevo producto | MANAGER, ADMIN |
+| GET | `/api/productos/{id}` | Obtener un producto específico | CLIENTE, MANAGER, ADMIN |
+| PUT | `/api/productos/{id}` | Actualizar un producto | MANAGER, ADMIN |
+| DELETE | `/api/productos/{id}` | Eliminar un producto | ADMIN |
 
 ### 🛒 Pedidos
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/pedidos` | Obtener todos los pedidos |
-| POST | `/api/pedidos` | Crear un nuevo pedido |
-| GET | `/api/pedidos/{id}` | Obtener un pedido específico |
-| PUT | `/api/pedidos/{id}` | Actualizar un pedido |
-| DELETE | `/api/pedidos/{id}` | Eliminar un pedido |
+| Método | Endpoint | Descripción | Roles Permitidos |
+|--------|----------|-------------|------------------|
+| GET | `/api/pedidos` | Obtener todos los pedidos | CLIENTE, MANAGER, ADMIN |
+| POST | `/api/pedidos` | Crear un nuevo pedido | CLIENTE, MANAGER, ADMIN |
+| GET | `/api/pedidos/{id}` | Obtener un pedido específico | CLIENTE, MANAGER, ADMIN |
+| PUT | `/api/pedidos/{id}` | Actualizar un pedido | MANAGER, ADMIN |
+| DELETE | `/api/pedidos/{id}` | Eliminar un pedido | ADMIN |
 
 > 💡 **Tip**: Para ver todos los endpoints disponibles y probarlos, usa **Swagger UI**: http://localhost:8080/api/swagger-ui.html
 
@@ -190,7 +228,70 @@ set SPRING_PROFILES_ACTIVE=test && mvnw.cmd test
 
 ---
 
-## 🔒 Seguridad
+## 🔒 Seguridad y Autenticación
+
+### 🔐 Sistema de Autenticación JWT
+
+El microservicio implementa autenticación basada en **JSON Web Tokens (JWT)** con los siguientes componentes:
+
+#### **Tokens:**
+- **Access Token**: Expira en 24 horas (configurable via `JWT_EXPIRATION`)
+- **Refresh Token**: Expira en 7 días (configurable via `JWT_REFRESH_TOKEN_EXPIRATION`)
+
+#### **Configuración JWT:**
+Variables de entorno en `.env`:
+```env
+JWT_SECRET=bXljb21wbGV4c2VjcmV0a2V5...
+JWT_EXPIRATION=86400000          # 24 horas en milisegundos
+JWT_REFRESH_TOKEN_EXPIRATION=604800000  # 7 días
+```
+
+#### **Cómo autenticarse:**
+1. **Login** para obtener token:
+   ```bash
+   POST /api/auth/login
+   {
+     "username": "admin",
+     "password": "password123"
+   }
+   ```
+
+2. **Usar el token** en siguientes peticiones:
+   ```bash
+   GET /api/usuarios
+   Authorization: Bearer eyJhbGciOiJIUzM4NCJ9...
+   ```
+
+### 👤 Sistema de Roles y Permisos
+
+El sistema implementa **3 roles** con diferentes niveles de acceso:
+
+| Rol | Descripción | Permisos |
+|-----|-------------|----------|
+| **CLIENTE** | Usuario regular | ✅ Leer usuarios, productos, pedidos<br>✅ Crear pedidos |
+| **MANAGER** | Gestor | ✅ Todo lo de CLIENTE<br>✅ Crear/actualizar usuarios y productos<br>✅ Actualizar pedidos |
+| **ADMIN** | Administrador | ✅ Acceso total al sistema<br>✅ Eliminar cualquier entidad<br>✅ **Asignar roles a usuarios** |
+
+#### **Usuarios de Prueba:**
+| Username | Password | Rol |
+|----------|----------|-----|
+| `admin` | `password123` | ADMIN |
+| `superadmin` | `password123` | ADMIN |
+| `mrodriguez` | `password123` | MANAGER |
+| `jgarcia` | `password123` | CLIENTE |
+
+#### **Cambiar Roles (Solo ADMIN):**
+```bash
+PATCH /api/usuarios/{id}/roles
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "roles": ["MANAGER"]
+}
+```
+
+**Roles válidos:** `ADMIN`, `MANAGER`, `CLIENTE`
 
 ### ✅ Buenas Prácticas (HACER SIEMPRE)
 

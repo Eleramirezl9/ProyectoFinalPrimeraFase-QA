@@ -1,5 +1,6 @@
 package com.ejemplo.controller;
 
+import com.ejemplo.dto.AssignRolesRequest;
 import com.ejemplo.dto.UsuarioDTO;
 import com.ejemplo.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -335,6 +337,34 @@ public class UsuarioController {
         
         logger.info("Estadísticas: Total={}, Activos={}, Inactivos={}", totalUsuarios, usuariosActivos, usuariosInactivos);
         return ResponseEntity.ok(estadisticas);
+    }
+
+    /**
+     * Asigna roles a un usuario
+     * Solo ADMIN puede ejecutar esta operación
+     */
+    @PatchMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Asignar roles a usuario",
+               description = "Asigna uno o más roles a un usuario específico. Solo administradores pueden ejecutar esta operación.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Roles asignados exitosamente",
+                    content = @Content(mediaType = "application/json",
+                                     schema = @Schema(implementation = UsuarioDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Roles inválidos o datos incorrectos"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Solo ADMIN"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public ResponseEntity<UsuarioDTO> asignarRoles(
+            @Parameter(description = "ID único del usuario", required = true, example = "1")
+            @PathVariable Long id,
+            @Parameter(description = "Lista de roles a asignar (ADMIN, MANAGER, CLIENTE)", required = true)
+            @Valid @RequestBody AssignRolesRequest request) {
+        logger.info("PATCH /usuarios/{}/roles - Asignando roles: {}", id, request.getRoles());
+        UsuarioDTO usuario = usuarioService.asignarRoles(id, request);
+        logger.info("Roles asignados exitosamente al usuario ID: {}", id);
+        return ResponseEntity.ok(usuario);
     }
 }
 

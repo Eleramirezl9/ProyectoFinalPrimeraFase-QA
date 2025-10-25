@@ -73,6 +73,8 @@ public class SecurityConfig {
                             .hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/**")
                             .hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PATCH, "/usuarios/*/roles")
+                            .hasRole("ADMIN")  // Solo ADMIN puede asignar roles
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**")
                             .hasRole("ADMIN")
 

@@ -95,6 +95,8 @@ public class SwaggerConfig {
                 Este microservicio implementa un sistema completo de gestión de usuarios, productos y pedidos con las siguientes características:
                 
                 ### Características Principales
+                - ✅ **Autenticación JWT** con tokens de acceso y refresh
+                - ✅ **Sistema de roles y permisos** (ADMIN, MANAGER, CLIENTE)
                 - ✅ **Operaciones CRUD completas** para todas las entidades
                 - ✅ **Validación de datos** con Bean Validation
                 - ✅ **Manejo global de excepciones** con respuestas estandarizadas
@@ -103,12 +105,40 @@ public class SwaggerConfig {
                 - ✅ **Logging estructurado** para monitoreo y debugging
                 - ✅ **Arquitectura por capas** (Controller, Service, Repository)
                 
+                ### 🔐 Autenticación y Seguridad
+
+                #### Autenticación JWT
+                El sistema utiliza JSON Web Tokens (JWT) para autenticación segura:
+                - **Access Token**: Válido por 24 horas
+                - **Refresh Token**: Válido por 7 días
+                - **Algoritmo**: HS384 (HMAC-SHA384)
+
+                Para autenticarte:
+                1. Haz login en `/auth/login` con username y password
+                2. Copia el token recibido
+                3. Click en el botón "Authorize" 🔓 arriba
+                4. Ingresa: `Bearer {tu_token}`
+                5. Ahora puedes usar los endpoints protegidos
+
+                #### Sistema de Roles
+                | Rol | Permisos |
+                |-----|----------|
+                | **CLIENTE** | Ver usuarios, productos, pedidos. Crear pedidos |
+                | **MANAGER** | Todo lo de CLIENTE + crear/editar usuarios y productos |
+                | **ADMIN** | Acceso total + eliminar entidades + asignar roles |
+
+                #### Usuarios de Prueba
+                - `admin` / `password123` (ADMIN)
+                - `mrodriguez` / `password123` (MANAGER)
+                - `jgarcia` / `password123` (CLIENTE)
+
                 ### Entidades del Sistema
-                
+
                 #### Usuario
-                Representa los usuarios del sistema con información personal y de contacto.
-                - Campos: ID, nombre, apellido, email, teléfono, estado activo
-                - Validaciones: email único, formato de email válido, campos obligatorios
+                Representa los usuarios del sistema con información personal, autenticación y roles.
+                - Campos: ID, nombre, apellido, username, email, password, teléfono, estado activo
+                - Roles: ADMIN, MANAGER, CLIENTE (asignables por ADMIN)
+                - Validaciones: email y username únicos, formato de email válido, campos obligatorios
                 
                 #### Producto
                 Representa los productos del catálogo con información comercial.
@@ -122,6 +152,9 @@ public class SwaggerConfig {
                 - Lógica: cálculo automático de totales, gestión de stock
                 
                 ### Funcionalidades Avanzadas
+                - **Autenticación JWT**: Login seguro con tokens de acceso y refresh
+                - **Control de roles**: Sistema jerárquico de permisos (ADMIN > MANAGER > CLIENTE)
+                - **Gestión de roles**: Endpoint para asignar/cambiar roles (solo ADMIN)
                 - **Búsquedas flexibles**: Por texto libre, rangos de precios, categorías
                 - **Gestión de stock**: Reducción/aumento automático en pedidos
                 - **Estados de pedidos**: Flujo completo desde creación hasta entrega
