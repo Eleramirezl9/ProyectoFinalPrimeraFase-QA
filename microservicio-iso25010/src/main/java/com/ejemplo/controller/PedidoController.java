@@ -7,6 +7,7 @@ import com.ejemplo.model.Producto;
 import com.ejemplo.service.ProductoService;
 import com.ejemplo.repository.PedidoRepository;
 import com.ejemplo.repository.UsuarioRepository;
+import com.ejemplo.util.LogSanitizer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -326,7 +327,7 @@ public class PedidoController {
     public ResponseEntity<List<Pedido>> obtenerPorEstado(
             @Parameter(description = "Estado del pedido", required = true, example = "PENDIENTE")
             @PathVariable String estado) {
-        logger.info("GET /pedidos/estado/{} - Obteniendo pedidos por estado", estado);
+        logger.info("GET /pedidos/estado/{} - Obteniendo pedidos por estado", LogSanitizer.sanitize(estado));
         
         try {
             Pedido.EstadoPedido estadoPedido = Pedido.EstadoPedido.valueOf(estado.toUpperCase());
@@ -356,7 +357,7 @@ public class PedidoController {
             @PathVariable Long id,
             @Parameter(description = "Nuevo estado", required = true, example = "CONFIRMADO")
             @RequestParam String estado) {
-        logger.info("PATCH /pedidos/{}/estado?estado={} - Cambiando estado de pedido", id, estado);
+        logger.info("PATCH /pedidos/{}/estado?estado={} - Cambiando estado de pedido", id, LogSanitizer.sanitize(estado));
         
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));

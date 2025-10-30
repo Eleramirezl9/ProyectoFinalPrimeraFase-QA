@@ -1,5 +1,9 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive",
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "eleramirezl9",
+        "projectKey": "Eleramirezl9_ProyectoFinalPrimeraFase-QA"
+    }
 }

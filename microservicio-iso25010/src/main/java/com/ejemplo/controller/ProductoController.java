@@ -2,6 +2,7 @@ package com.ejemplo.controller;
 
 import com.ejemplo.model.Producto;
 import com.ejemplo.service.ProductoService;
+import com.ejemplo.util.LogSanitizer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -78,7 +79,7 @@ public class ProductoController {
             @PathVariable Long id) {
         logger.info("GET /productos/{} - Obteniendo producto por ID", id);
         Producto producto = productoService.obtenerPorId(id);
-        logger.info("Producto encontrado: {}", producto.getNombre());
+        logger.info("Producto encontrado: {}", LogSanitizer.sanitize(producto.getNombre()));
         return ResponseEntity.ok(producto);
     }
 
@@ -98,7 +99,7 @@ public class ProductoController {
     public ResponseEntity<Producto> crear(
             @Parameter(description = "Datos del producto a crear", required = true)
             @Valid @RequestBody Producto producto) {
-        logger.info("POST /productos - Creando nuevo producto: {}", producto.getNombre());
+        logger.info("POST /productos - Creando nuevo producto: {}", LogSanitizer.sanitize(producto.getNombre()));
         Producto productoCreado = productoService.crear(producto);
         logger.info("Producto creado exitosamente con ID: {}", productoCreado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(productoCreado);
@@ -125,7 +126,7 @@ public class ProductoController {
             @Valid @RequestBody Producto producto) {
         logger.info("PUT /productos/{} - Actualizando producto", id);
         Producto productoActualizado = productoService.actualizar(id, producto);
-        logger.info("Producto actualizado exitosamente: {}", productoActualizado.getNombre());
+        logger.info("Producto actualizado exitosamente: {}", LogSanitizer.sanitize(productoActualizado.getNombre()));
         return ResponseEntity.ok(productoActualizado);
     }
 
@@ -167,9 +168,9 @@ public class ProductoController {
             @Parameter(description = "Nombre a buscar", required = true, example = "Laptop")
             @RequestParam @NotBlank(message = "El nombre a buscar no puede estar vacío") 
             @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres") String nombre) {
-        logger.info("GET /productos/buscar?nombre={} - Buscando productos por nombre", nombre);
+        logger.info("GET /productos/buscar?nombre={} - Buscando productos por nombre", LogSanitizer.sanitize(nombre));
         List<Producto> productos = productoService.buscarPorNombre(nombre);
-        logger.info("Se encontraron {} productos con nombre: {}", productos.size(), nombre);
+        logger.info("Se encontraron {} productos con nombre: {}", productos.size(), LogSanitizer.sanitize(nombre));
         return ResponseEntity.ok(productos);
     }
 
@@ -188,9 +189,9 @@ public class ProductoController {
     public ResponseEntity<List<Producto>> buscarPorCategoria(
             @Parameter(description = "Categoría del producto", required = true, example = "Electrónicos")
             @PathVariable String categoria) {
-        logger.info("GET /productos/categoria/{} - Buscando productos por categoría", categoria);
+        logger.info("GET /productos/categoria/{} - Buscando productos por categoría", LogSanitizer.sanitize(categoria));
         List<Producto> productos = productoService.buscarPorCategoria(categoria);
-        logger.info("Se encontraron {} productos en categoría: {}", productos.size(), categoria);
+        logger.info("Se encontraron {} productos en categoría: {}", productos.size(), LogSanitizer.sanitize(categoria));
         return ResponseEntity.ok(productos);
     }
 
@@ -209,9 +210,9 @@ public class ProductoController {
     public ResponseEntity<List<Producto>> buscarPorMarca(
             @Parameter(description = "Marca del producto", required = true, example = "Samsung")
             @PathVariable String marca) {
-        logger.info("GET /productos/marca/{} - Buscando productos por marca", marca);
+        logger.info("GET /productos/marca/{} - Buscando productos por marca", LogSanitizer.sanitize(marca));
         List<Producto> productos = productoService.buscarPorMarca(marca);
-        logger.info("Se encontraron {} productos de marca: {}", productos.size(), marca);
+        logger.info("Se encontraron {} productos de marca: {}", productos.size(), LogSanitizer.sanitize(marca));
         return ResponseEntity.ok(productos);
     }
 
@@ -313,9 +314,9 @@ public class ProductoController {
     public ResponseEntity<List<Producto>> buscarPorTexto(
             @Parameter(description = "Texto a buscar", required = true, example = "smartphone")
             @RequestParam String texto) {
-        logger.info("GET /productos/buscar-texto?texto={} - Búsqueda libre de productos", texto);
+        logger.info("GET /productos/buscar-texto?texto={} - Búsqueda libre de productos", LogSanitizer.sanitize(texto));
         List<Producto> productos = productoService.buscarPorTexto(texto);
-        logger.info("Se encontraron {} productos con texto: {}", productos.size(), texto);
+        logger.info("Se encontraron {} productos con texto: {}", productos.size(), LogSanitizer.sanitize(texto));
         return ResponseEntity.ok(productos);
     }
 
@@ -374,7 +375,7 @@ public class ProductoController {
             @RequestParam Integer stock) {
         logger.info("PATCH /productos/{}/stock?stock={} - Actualizando stock", id, stock);
         Producto producto = productoService.actualizarStock(id, stock);
-        logger.info("Stock actualizado para producto: {}", producto.getNombre());
+        logger.info("Stock actualizado para producto: {}", LogSanitizer.sanitize(producto.getNombre()));
         return ResponseEntity.ok(producto);
     }
 
@@ -396,7 +397,7 @@ public class ProductoController {
             @PathVariable Long id) {
         logger.info("PATCH /productos/{}/activar - Activando producto", id);
         Producto producto = productoService.activar(id);
-        logger.info("Producto activado exitosamente: {}", producto.getNombre());
+        logger.info("Producto activado exitosamente: {}", LogSanitizer.sanitize(producto.getNombre()));
         return ResponseEntity.ok(producto);
     }
 
@@ -418,7 +419,7 @@ public class ProductoController {
             @PathVariable Long id) {
         logger.info("PATCH /productos/{}/desactivar - Desactivando producto", id);
         Producto producto = productoService.desactivar(id);
-        logger.info("Producto desactivado exitosamente: {}", producto.getNombre());
+        logger.info("Producto desactivado exitosamente: {}", LogSanitizer.sanitize(producto.getNombre()));
         return ResponseEntity.ok(producto);
     }
 }
