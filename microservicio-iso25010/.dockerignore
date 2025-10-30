@@ -1,0 +1,60 @@
+# ==========================================
+# .dockerignore - Microservicio Level
+# ==========================================
+# Optimiza el build del microservicio Spring Boot
+
+# Maven build artifacts
+target/
+!target/*.jar
+
+# Maven wrapper (ya está en la imagen base)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Source control
+.git/
+.gitignore
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Tests
+src/test/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+README*
+CHANGELOG*
+
+# Scripts de desarrollo
+start-dev.bat
+start-dev.sh
+
+# CI/CD
+Jenkinsfile
+.github/
+
+# Configuración de IDE
+.classpath
+.project
+.settings/
+bin/

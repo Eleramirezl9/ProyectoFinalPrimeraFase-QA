@@ -6,12 +6,13 @@
 # ----------------------------------------
 # CONFIGURACIÓN DE BASE DE DATOS PARA TESTS
 # ----------------------------------------
+# IMPORTANTE: Configurar credenciales en archivo .env o variables de CI/CD
 spring:
   datasource:
     # Base de datos en memoria independiente para tests
-    url: jdbc:h2:mem:testdb_${random.uuid};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: test_user
-    password: test_password_2024
+    url: ${DB_URL:jdbc:h2:mem:testdb_${random.uuid};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   
   jpa:
     hibernate:

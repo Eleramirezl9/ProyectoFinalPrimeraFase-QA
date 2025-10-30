@@ -60,15 +60,21 @@ cd microservicio-iso25010
 
 ### H2 Console Credentials
 
-**Dev profile:**
-- JDBC URL: `jdbc:h2:mem:devdb`
-- Username: `dev_user`
-- Password: `dev_secure_password_2025`
+⚠️ **IMPORTANTE**: Las credenciales deben configurarse en el archivo `.env`
 
-**Default/test profile:**
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: `password`
+**Configuración requerida en `.env`:**
+- `DB_URL` - URL de conexión JDBC
+- `DB_USERNAME` - Usuario de la base de datos
+- `DB_PASSWORD` - Contraseña de la base de datos
+
+**Ejemplo para desarrollo:**
+```
+DB_URL=jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+DB_USERNAME=<tu-usuario>
+DB_PASSWORD=<tu-password-seguro>
+```
+
+Ver [.env.example](microservicio-iso25010/.env.example) para más detalles.
 
 ## Architecture
 
@@ -159,30 +165,136 @@ All configuration uses environment variables for security. Key variables defined
 
 ## CI/CD
 
+### Architecture Overview
+
+The project has a clean CI/CD architecture with three complementary systems:
+
+```
+GitHub Actions (Cloud)     →  Quality & Analysis
+    ├─ Build & Test
+    ├─ SonarQube Analysis
+    └─ Coverage Reports
+
+Jenkins (Local)            →  Build & Deployment
+    ├─ Maven Build
+    ├─ Docker Image Creation
+    ├─ Local Deployment
+    └─ Health Checks + Rollback
+
+Docker Compose             →  Orchestration
+    ├─ docker-compose.yml       (Production)
+    ├─ docker-compose.dev.yml   (Development)
+    └─ docker-compose.ci.yml    (CI/CD)
+```
+
+### Quick Start
+
+**Automated deployment script:**
+```bash
+# Development environment
+deploy.bat dev
+
+# CI/CD environment (Jenkins + Staging)
+deploy.bat ci
+
+# Production environment
+deploy.bat prod
+
+# Stop all services
+deploy.bat stop
+
+# View logs
+deploy.bat logs
+```
+
 ### Jenkins Pipeline
 
-The project includes a `Jenkinsfile` with the following stages:
-1. Checkout from GitHub
-2. Build (mvn clean compile)
-3. Test (mvn test) - publishes JUnit results
-4. Package (mvn package -DskipTests)
-5. SonarQube Analysis (currently disabled, `when: expression { return false }`)
-6. Build Docker Image
-7. Deploy (docker run)
+The `Jenkinsfile` includes:
+1. **Checkout** - Clone from GitHub
+2. **Build** - Maven clean compile
+3. **Test** - Unit tests with JUnit reports
+4. **Package** - Create JAR artifact
+5. **SonarQube** - Code quality analysis (optional, runs if SONAR_TOKEN configured)
+6. **Build Docker** - Multi-stage Docker image
+7. **Deploy** - Deploy with health checks and automatic rollback on failure
 
-**Note:** Pipeline executes commands from `microservicio-iso25010` directory, not root.
+**Key Features:**
+- ✅ Maven caching for faster builds
+- ✅ Health checks after deployment
+- ✅ Automatic rollback if deployment fails
+- ✅ Cleanup of old Docker images (keeps last 3)
+- ✅ JUnit test reports in Jenkins UI
 
-### Docker
+**Note:** Pipeline executes commands from `microservicio-iso25010` directory.
 
-Use `docker-compose.yml` at root to run both Jenkins and the microservice:
+### GitHub Actions
 
+Workflow file: `.github/workflows/build.yml`
+
+**Jobs:**
+1. **build-and-test** - Build, test, generate coverage reports
+2. **sonarqube** - Code quality analysis with SonarCloud
+3. **package** - Create JAR artifact (only on main branch)
+4. **notify** - Build status notification
+
+**Triggers:**
+- Push to `main` or `develop` branches
+- Pull requests
+
+### Docker Compose Configurations
+
+Three separate configurations for different environments:
+
+#### Production (`docker-compose.yml`)
 ```bash
 docker-compose up -d
 ```
+- Jenkins on port 8082
+- Microservicio on port 8080
+- Profile: `prod`
+- H2 Console: Disabled
+- Swagger: Disabled
 
-Services:
+#### Development (`docker-compose.dev.yml`)
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+- Microservicio on port 8080
+- Adminer (DB client) on port 8081
+- Profile: `dev`
+- H2 Console: Enabled
+- Swagger: Enabled
+- Hot reload with mounted volumes
+
+#### CI/CD (`docker-compose.ci.yml`)
+```bash
+docker-compose -f docker-compose.ci.yml up -d
+```
+- Jenkins on port 8082
+- Microservicio Staging on port 8080
+- Profile: `test`
+- Docker-in-Docker for builds
+
+### URLs
+
+**Development:**
+- API: http://localhost:8080/api
+- Swagger: http://localhost:8080/api/swagger-ui.html
+- H2 Console: http://localhost:8080/api/h2-console
+- Adminer: http://localhost:8081
+
+**CI/CD:**
 - Jenkins: http://localhost:8082
-- Microservice: http://localhost:8080/api
+- Staging API: http://localhost:8080/api
+
+**Production:**
+- Jenkins: http://localhost:8082
+- API: http://localhost:8080/api (Swagger disabled)
+
+### Complete Documentation
+
+For detailed CI/CD setup, troubleshooting, and best practices, see:
+📖 **[CI-CD.md](CI-CD.md)** - Complete CI/CD Guide
 
 ## Important Notes
 

@@ -1,5 +1,6 @@
 package com.ejemplo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,6 +32,7 @@ public class Permission {
     private String description;
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    @JsonIgnore  // Evita ciclo infinito de serialización JSON
     private Set<Role> roles = new HashSet<>();
 
     // Constructores

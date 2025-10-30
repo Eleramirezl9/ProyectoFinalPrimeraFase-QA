@@ -1,5 +1,6 @@
 package com.ejemplo.controller;
 
+import com.ejemplo.dto.PedidoResponseDTO;
 import com.ejemplo.model.Pedido;
 import com.ejemplo.model.Usuario;
 import com.ejemplo.model.Producto;
@@ -100,14 +101,20 @@ public class PedidoController {
     @Operation(summary = "Obtener todos los pedidos",description = "Retorna una lista con todos los pedidos del sistema")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida exitosamente",
-                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = PedidoResponseDTO.class))),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<List<Pedido>> obtenerTodos() {
+    public ResponseEntity<List<PedidoResponseDTO>> obtenerTodos() {
         logger.info("GET /pedidos - Obteniendo todos los pedidos");
         List<Pedido> pedidos = pedidoRepository.findAllWithRelations();
         logger.info("Se encontraron {} pedidos", pedidos.size());
-        return ResponseEntity.ok(pedidos);
+
+        // Convertir a DTOs para evitar ciclos de serialización
+        List<PedidoResponseDTO> response = pedidos.stream()
+                .map(PedidoResponseDTO::new)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -117,19 +124,22 @@ public class PedidoController {
     @Operation(summary = "Obtener pedido por ID",description = "Retorna un pedido específico basado en su ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido encontrado exitosamente",
-                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = Pedido.class))),
+                    content = @Content(mediaType = "application/json",schema = @Schema(implementation = PedidoResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
         @ApiResponse(responseCode = "400", description = "ID inválido"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<Pedido> obtenerPorId(
+    public ResponseEntity<PedidoResponseDTO> obtenerPorId(
             @Parameter(description = "ID único del pedido", required = true, example = "1")
             @PathVariable Long id) {
         logger.info("GET /pedidos/{} - Obteniendo pedido por ID", id);
         Pedido pedido = pedidoRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
         logger.info("Pedido encontrado: ID={}, Estado={}", pedido.getId(), pedido.getEstado());
-        return ResponseEntity.ok(pedido);
+
+        // Convertir a DTO para evitar ciclos de serialización
+        PedidoResponseDTO response = new PedidoResponseDTO(pedido);
+        return ResponseEntity.ok(response);
     }
 
     /**

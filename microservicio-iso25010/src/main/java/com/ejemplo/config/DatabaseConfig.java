@@ -22,16 +22,16 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${DB_URL:jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}")
+    @Value("${DB_URL}")
     private String dbUrl;
-    
+
     @Value("${DB_DRIVER:org.h2.Driver}")
     private String dbDriver;
-    
-    @Value("${DB_USERNAME:sa}")
+
+    @Value("${DB_USERNAME}")
     private String dbUsername;
-    
-    @Value("${DB_PASSWORD:password}")
+
+    @Value("${DB_PASSWORD}")
     private String dbPassword;
 
     /**

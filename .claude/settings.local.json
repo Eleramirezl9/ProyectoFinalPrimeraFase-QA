@@ -3,7 +3,10 @@
     "allow": [
       "Bash(rm:*)",
       "Bash(./mvnw.cmd clean compile)",
-      "Bash(./mvnw.cmd:*)"
+      "Bash(./mvnw.cmd:*)",
+      "Bash(cmd /c:*)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn test:*)"
     ],
     "deny": [],
     "ask": []

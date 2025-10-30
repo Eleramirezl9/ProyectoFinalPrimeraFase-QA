@@ -1,8 +1,13 @@
-# 🚀 Microservicio ISO/IEC 25010
+# Microservicio ISO/IEC 25010 - Proyecto de Aseguramiento de la Calidad
 
-> **Sistema de gestión de Usuarios, Productos y Pedidos con Spring Boot**
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.12-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-Academic-blue.svg)]()
 
-API REST desarrollada con Spring Boot para la evaluación de calidad de software según el estándar ISO/IEC 25010.
+> Proyecto final del curso de Aseguramiento de la Calidad
+> Universidad Mariano Gálvez de Guatemala
+
+API REST desarrollada con Spring Boot que implementa un sistema de gestión de usuarios, productos y pedidos, evaluada bajo los estándares de calidad ISO/IEC 25010.
 
 ---
 
@@ -85,9 +90,11 @@ Una vez iniciado, abre tu navegador y visita:
 POST /api/auth/login
 {
   "username": "admin",
-  "password": "password123"
+  "password": "<tu-password>"
 }
 ```
+
+⚠️ **NOTA**: Consultar documentación interna para credenciales de prueba
 
 **Respuesta:**
 ```json
@@ -149,9 +156,10 @@ Authorization: Bearer {token}
 
 1. Abre: http://localhost:8080/api/h2-console
 2. Configuración de conexión:
-   - **JDBC URL**: `jdbc:h2:mem:devdb` (desarrollo) o `jdbc:h2:mem:testdb` (por defecto)
-   - **Username**: `dev_user` (desarrollo) o `sa` (por defecto)
-   - **Password**: `dev_secure_password_2025` (desarrollo) o `password` (por defecto)
+   - Las credenciales deben estar configuradas en el archivo `.env`
+   - Ver [.env.example](microservicio-iso25010/.env.example) para la configuración requerida
+
+⚠️ **IMPORTANTE**: Nunca usar credenciales por defecto en producción
 
 ### Datos Iniciales
 
@@ -252,9 +260,11 @@ JWT_REFRESH_TOKEN_EXPIRATION=604800000  # 7 días
    POST /api/auth/login
    {
      "username": "admin",
-     "password": "password123"
+     "password": "<tu-password>"
    }
    ```
+
+   ⚠️ **NOTA**: Consultar documentación interna para credenciales de prueba
 
 2. **Usar el token** en siguientes peticiones:
    ```bash
@@ -273,12 +283,17 @@ El sistema implementa **3 roles** con diferentes niveles de acceso:
 | **ADMIN** | Administrador | ✅ Acceso total al sistema<br>✅ Eliminar cualquier entidad<br>✅ **Asignar roles a usuarios** |
 
 #### **Usuarios de Prueba:**
-| Username | Password | Rol |
-|----------|----------|-----|
-| `admin` | `password123` | ADMIN |
-| `superadmin` | `password123` | ADMIN |
-| `mrodriguez` | `password123` | MANAGER |
-| `jgarcia` | `password123` | CLIENTE |
+
+⚠️ **IMPORTANTE**: Consultar documentación interna del proyecto para obtener credenciales de prueba
+
+| Username | Rol |
+|----------|-----|
+| `admin` | ADMIN |
+| `superadmin` | ADMIN |
+| `mrodriguez` | MANAGER |
+| `jgarcia` | CLIENTE |
+
+Las credenciales están encriptadas con BCrypt en `data.sql`
 
 #### **Cambiar Roles (Solo ADMIN):**
 ```bash
@@ -392,11 +407,95 @@ git push origin main
 
 ---
 
+## 🚀 CI/CD y Deployment
+
+### Scripts de Deployment
+
+El proyecto incluye scripts automatizados para diferentes entornos:
+
+```bash
+# Desarrollo local con hot reload
+deploy.bat dev
+
+# Jenkins + Microservicio staging
+deploy.bat ci
+
+# Producción
+deploy.bat prod
+
+# Detener todos los servicios
+deploy.bat stop
+```
+
+### Docker Compose
+
+Tres configuraciones disponibles:
+
+| Archivo | Entorno | Uso |
+|---------|---------|-----|
+| `docker-compose.yml` | Producción | Jenkins + App |
+| `docker-compose.dev.yml` | Desarrollo | App + Adminer |
+| `docker-compose.ci.yml` | CI/CD | Jenkins + Staging |
+
+**Iniciar con Docker:**
+```bash
+# Desarrollo
+docker-compose -f docker-compose.dev.yml up -d
+
+# Producción
+docker-compose up -d
+```
+
+### GitHub Actions
+
+Pipeline automático que se ejecuta en cada push:
+- ✅ Build y compilación
+- ✅ Tests unitarios
+- ✅ Análisis SonarQube
+- ✅ Reporte de cobertura
+- ✅ Empaquetado (solo en main)
+
+Ver: [.github/workflows/build.yml](.github/workflows/build.yml)
+
+### Jenkins
+
+Pipeline local para build y deploy:
+- 🔨 Build con Maven
+- 🧪 Tests con reportes JUnit
+- 📦 Empaquetado JAR
+- 🐳 Build de imagen Docker
+- 🚀 Deploy con health checks
+- 🔙 Rollback automático si falla
+
+Ver: [Jenkinsfile](Jenkinsfile)
+
+**Acceder a Jenkins:**
+- URL: http://localhost:8082
+- Iniciar: `deploy.bat ci`
+
+### Documentación Detallada
+
+📖 **[Ver guía completa de CI/CD →](CI-CD.md)**
+
+La guía incluye:
+- Configuración paso a paso
+- Troubleshooting
+- Mejores prácticas
+- Comandos útiles
+
+---
+
 ## 🐛 Solución de Problemas
 
 ### El puerto 8080 ya está en uso
 ```bash
-# Cambiar el puerto en .env
+# Windows: Ver qué usa el puerto
+netstat -ano | findstr :8080
+
+# Matar el proceso
+taskkill /PID <PID> /F
+
+# O cambiar el puerto en .env
 SERVER_PORT=8081
 ```
 
@@ -414,6 +513,17 @@ SERVER_PORT=8081
 - Agrega tu URL frontend a `CORS_ALLOWED_ORIGINS` en `.env`:
 ```
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200
+```
+
+### Docker: Puerto ya en uso
+```bash
+# Detener servicios Docker
+deploy.bat stop
+
+# O manualmente
+docker-compose down
+docker-compose -f docker-compose.dev.yml down
+docker-compose -f docker-compose.ci.yml down
 ```
 
 ---

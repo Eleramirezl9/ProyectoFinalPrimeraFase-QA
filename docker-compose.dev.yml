@@ -1,0 +1,91 @@
+# ==========================================
+# Docker Compose - DESARROLLO LOCAL
+# ==========================================
+# Uso: docker-compose -f docker-compose.dev.yml up
+#
+# Configuración optimizada para desarrollo local:
+# - Hot reload habilitado
+# - Volúmenes montados para código fuente
+# - H2 console y Swagger habilitados
+# - Logs en DEBUG
+
+services:
+  # ==========================================
+  # MICROSERVICIO - Desarrollo
+  # ==========================================
+  microservicio-dev:
+    build:
+      context: ./microservicio-iso25010
+      dockerfile: Dockerfile
+      target: build  # Solo etapa de build para desarrollo
+    container_name: microservicio-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      # Montar código fuente para hot reload
+      - ./microservicio-iso25010/src:/app/src:ro
+      # Cache de Maven
+      - maven_cache_dev:/root/.m2
+    environment:
+      # Profile de desarrollo
+      - SPRING_PROFILES_ACTIVE=dev
+      - SERVER_PORT=8080
+
+      # Database (H2 en memoria)
+      # ⚠️ IMPORTANTE: En producción, usar archivo .env con credenciales seguras
+      - DB_URL=${DB_URL:-jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+      # Features (todo habilitado en dev)
+      - H2_CONSOLE_ENABLED=true
+      - SWAGGER_UI_ENABLED=true
+
+      # Logging (verboso para debug)
+      - LOG_LEVEL_APP=DEBUG
+      - LOG_LEVEL_WEB=DEBUG
+      - LOG_LEVEL_SQL=DEBUG
+
+      # CORS (permisivo para desarrollo local)
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200,http://localhost:5173
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+  # ==========================================
+  # ADMINER - Cliente de Base de Datos (Opcional)
+  # ==========================================
+  # Interfaz web para gestionar la base de datos H2
+  adminer:
+    image: adminer:latest
+    container_name: adminer-dev
+    ports:
+      - "8081:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=microservicio-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    depends_on:
+      - microservicio-dev
+
+# ==========================================
+# VOLÚMENES
+# ==========================================
+volumes:
+  maven_cache_dev:
+    driver: local
+
+# ==========================================
+# REDES
+# ==========================================
+networks:
+  dev-network:
+    driver: bridge
+    name: dev-network

@@ -19,13 +19,13 @@ import org.springframework.context.annotation.Profile;
 @Profile({"dev", "test", "default"})
 public class H2ConsoleConfig {
 
-    @Value("${DB_URL:jdbc:h2:mem:testdb}")
+    @Value("${DB_URL}")
     private String dbUrl;
 
-    @Value("${DB_USERNAME:sa}")
+    @Value("${DB_USERNAME}")
     private String dbUsername;
 
-    @Value("${DB_PASSWORD:password}")
+    @Value("${DB_PASSWORD}")
     private String dbPassword;
 
     @Value("${SERVER_PORT:8080}")

@@ -22,10 +22,10 @@ spring:
   
   # Configuración de base de datos H2
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)}
+    url: ${DB_URL}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:dev_user}
-    password: ${DB_PASSWORD:dev_secure_password_2025}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   
   # Configuración JPA/Hibernate
   jpa:
@@ -101,7 +101,7 @@ cors:
 
 # Configuración JWT
 jwt:
-  secret: ${JWT_SECRET:bXljb21wbGV4c2VjcmV0a2V5Zm9yand0dG9rZW5zaWdudGluZ21pY3Jvc2VydmljaW9pc28yNTAxMHByb3llY3R1bmd2bWFyaWFub2dhbHZleg==}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
   refresh-token:
     expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}

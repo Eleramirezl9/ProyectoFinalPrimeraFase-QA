@@ -75,9 +75,8 @@ WHERE r.name = 'CLIENTE'
 -- =====================================================
 -- USUARIOS CON AUTENTICACIÓN
 -- =====================================================
--- Passwords (todos son "password123")
--- Hash BCrypt generado con: new BCryptPasswordEncoder().encode("password123")
--- Nota: El hash $2a$10$N9qo8uLOickgx2ZMRZoMyeJJ6/lKTCrFzFTQkNbLZNvN6dJkZGj6e corresponde a "password123"
+-- Passwords: Encriptados con BCrypt (consultar documentación del proyecto)
+-- ⚠️  NO EXPONGAS CREDENCIALES EN COMENTARIOS
 
 INSERT INTO usuarios (nombre, apellido, username, email, password, telefono, activo, cuenta_no_expirada, cuenta_no_bloqueada, credenciales_no_expiradas, fecha_creacion) VALUES
 -- Administradores
@@ -131,27 +130,28 @@ WHERE u.username IN ('jgarcia', 'alopez', 'lmorales', 'pvasquez', 'rjimenez', 'c
 -- PRODUCTOS DE PRUEBA
 -- =====================================================
 
+-- Stock aumentado a 1000 para pruebas de carga con 100+ usuarios concurrentes
 INSERT INTO productos (nombre, descripcion, precio, stock, categoria, marca, activo, fecha_creacion) VALUES
-('Smartphone Samsung Galaxy A54', 'Teléfono inteligente con pantalla AMOLED de 6.4 pulgadas, cámara triple de 50MP, 128GB de almacenamiento y 6GB de RAM', 2499.99, 25, 'Electrónicos', 'Samsung', true, DATEADD('DAY', -45, CURRENT_TIMESTAMP)),
-('Laptop Dell Inspiron 15', 'Laptop con procesador Intel Core i5, 8GB RAM, 512GB SSD, pantalla de 15.6 pulgadas Full HD', 4299.99, 15, 'Electrónicos', 'Dell', true, DATEADD('DAY', -40, CURRENT_TIMESTAMP)),
-('Tablet iPad Air', 'Tablet Apple con chip M1, pantalla Liquid Retina de 10.9 pulgadas, 64GB de almacenamiento', 3899.99, 12, 'Electrónicos', 'Apple', true, DATEADD('DAY', -35, CURRENT_TIMESTAMP)),
-('Auriculares Sony WH-1000XM4', 'Auriculares inalámbricos con cancelación de ruido, batería de 30 horas, Bluetooth 5.0', 1899.99, 30, 'Electrónicos', 'Sony', true, DATEADD('DAY', -32, CURRENT_TIMESTAMP)),
-('Smart TV LG 55 pulgadas', 'Televisor 4K UHD con webOS, HDR10, Dolby Vision, Wi-Fi integrado', 5999.99, 8, 'Electrónicos', 'LG', true, DATEADD('DAY', -28, CURRENT_TIMESTAMP)),
-('Cafetera Nespresso Vertuo', 'Cafetera de cápsulas con tecnología Centrifusion, prepara café y espresso', 1299.99, 20, 'Hogar y Jardín', 'Nespresso', true, DATEADD('DAY', -26, CURRENT_TIMESTAMP)),
-('Aspiradora Dyson V11', 'Aspiradora inalámbrica con tecnología ciclónica, batería de 60 minutos', 2799.99, 10, 'Hogar y Jardín', 'Dyson', true, DATEADD('DAY', -24, CURRENT_TIMESTAMP)),
-('Microondas Panasonic 1.2 cu ft', 'Horno microondas con tecnología inverter, 1200W de potencia, panel digital', 899.99, 18, 'Hogar y Jardín', 'Panasonic', true, DATEADD('DAY', -22, CURRENT_TIMESTAMP)),
-('Juego de Sartenes Tefal', 'Set de 3 sartenes antiadherentes con recubrimiento titanium, aptas para inducción', 599.99, 25, 'Hogar y Jardín', 'Tefal', true, DATEADD('DAY', -20, CURRENT_TIMESTAMP)),
-('Purificador de Aire Xiaomi', 'Purificador con filtro HEPA, cobertura de 48m², control por app móvil', 1199.99, 15, 'Hogar y Jardín', 'Xiaomi', true, DATEADD('DAY', -18, CURRENT_TIMESTAMP)),
-('Bicicleta de Montaña Trek', 'Bicicleta MTB con marco de aluminio, suspensión delantera, 21 velocidades', 3499.99, 6, 'Deportes y Fitness', 'Trek', true, DATEADD('DAY', -16, CURRENT_TIMESTAMP)),
-('Banda Elástica de Ejercicio', 'Set de 5 bandas de resistencia con diferentes niveles, incluye accesorios', 299.99, 40, 'Deportes y Fitness', 'Fitness Pro', true, DATEADD('DAY', -14, CURRENT_TIMESTAMP)),
-('Reloj Deportivo Garmin', 'Smartwatch con GPS, monitor de frecuencia cardíaca, resistente al agua', 1999.99, 22, 'Deportes y Fitness', 'Garmin', true, DATEADD('DAY', -12, CURRENT_TIMESTAMP)),
-('Mancuernas Ajustables', 'Par de mancuernas con peso ajustable de 2.5kg a 25kg cada una', 899.99, 12, 'Deportes y Fitness', 'PowerBlock', true, DATEADD('DAY', -10, CURRENT_TIMESTAMP)),
-('Esterilla de Yoga Premium', 'Esterilla antideslizante de 6mm de grosor, material eco-friendly', 199.99, 35, 'Deportes y Fitness', 'Manduka', true, DATEADD('DAY', -8, CURRENT_TIMESTAMP)),
-('Libro: Clean Code', 'Guía completa para escribir código limpio y mantenible por Robert C. Martin', 299.99, 50, 'Libros y Educación', 'Prentice Hall', true, DATEADD('DAY', -6, CURRENT_TIMESTAMP)),
-('Curso Online: Spring Boot Masterclass', 'Curso completo de desarrollo con Spring Boot, incluye certificado', 499.99, 100, 'Libros y Educación', 'TechAcademy', true, DATEADD('DAY', -4, CURRENT_TIMESTAMP)),
-('Calculadora Científica Casio', 'Calculadora programable con pantalla gráfica, ideal para ingeniería', 399.99, 28, 'Libros y Educación', 'Casio', true, DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
-('Monitor Gaming 27 pulgadas', 'Monitor curvo con resolución 2K, 144Hz, tiempo de respuesta 1ms', 1899.99, 5, 'Electrónicos', 'ASUS', true, DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
-('Silla Ergonómica de Oficina', 'Silla con soporte lumbar, reposabrazos ajustables, base de aluminio', 1299.99, 8, 'Hogar y Jardín', 'Herman Miller', true, DATEADD('HOUR', -3, CURRENT_TIMESTAMP));
+('Smartphone Samsung Galaxy A54', 'Teléfono inteligente con pantalla AMOLED de 6.4 pulgadas, cámara triple de 50MP, 128GB de almacenamiento y 6GB de RAM', 2499.99, 1000, 'Electrónicos', 'Samsung', true, DATEADD('DAY', -45, CURRENT_TIMESTAMP)),
+('Laptop Dell Inspiron 15', 'Laptop con procesador Intel Core i5, 8GB RAM, 512GB SSD, pantalla de 15.6 pulgadas Full HD', 4299.99, 1000, 'Electrónicos', 'Dell', true, DATEADD('DAY', -40, CURRENT_TIMESTAMP)),
+('Tablet iPad Air', 'Tablet Apple con chip M1, pantalla Liquid Retina de 10.9 pulgadas, 64GB de almacenamiento', 3899.99, 1000, 'Electrónicos', 'Apple', true, DATEADD('DAY', -35, CURRENT_TIMESTAMP)),
+('Auriculares Sony WH-1000XM4', 'Auriculares inalámbricos con cancelación de ruido, batería de 30 horas, Bluetooth 5.0', 1899.99, 1000, 'Electrónicos', 'Sony', true, DATEADD('DAY', -32, CURRENT_TIMESTAMP)),
+('Smart TV LG 55 pulgadas', 'Televisor 4K UHD con webOS, HDR10, Dolby Vision, Wi-Fi integrado', 5999.99, 1000, 'Electrónicos', 'LG', true, DATEADD('DAY', -28, CURRENT_TIMESTAMP)),
+('Cafetera Nespresso Vertuo', 'Cafetera de cápsulas con tecnología Centrifusion, prepara café y espresso', 1299.99, 1000, 'Hogar y Jardín', 'Nespresso', true, DATEADD('DAY', -26, CURRENT_TIMESTAMP)),
+('Aspiradora Dyson V11', 'Aspiradora inalámbrica con tecnología ciclónica, batería de 60 minutos', 2799.99, 1000, 'Hogar y Jardín', 'Dyson', true, DATEADD('DAY', -24, CURRENT_TIMESTAMP)),
+('Microondas Panasonic 1.2 cu ft', 'Horno microondas con tecnología inverter, 1200W de potencia, panel digital', 899.99, 1000, 'Hogar y Jardín', 'Panasonic', true, DATEADD('DAY', -22, CURRENT_TIMESTAMP)),
+('Juego de Sartenes Tefal', 'Set de 3 sartenes antiadherentes con recubrimiento titanium, aptas para inducción', 599.99, 1000, 'Hogar y Jardín', 'Tefal', true, DATEADD('DAY', -20, CURRENT_TIMESTAMP)),
+('Purificador de Aire Xiaomi', 'Purificador con filtro HEPA, cobertura de 48m², control por app móvil', 1199.99, 1000, 'Hogar y Jardín', 'Xiaomi', true, DATEADD('DAY', -18, CURRENT_TIMESTAMP)),
+('Bicicleta de Montaña Trek', 'Bicicleta MTB con marco de aluminio, suspensión delantera, 21 velocidades', 3499.99, 1000, 'Deportes y Fitness', 'Trek', true, DATEADD('DAY', -16, CURRENT_TIMESTAMP)),
+('Banda Elástica de Ejercicio', 'Set de 5 bandas de resistencia con diferentes niveles, incluye accesorios', 299.99, 1000, 'Deportes y Fitness', 'Fitness Pro', true, DATEADD('DAY', -14, CURRENT_TIMESTAMP)),
+('Reloj Deportivo Garmin', 'Smartwatch con GPS, monitor de frecuencia cardíaca, resistente al agua', 1999.99, 1000, 'Deportes y Fitness', 'Garmin', true, DATEADD('DAY', -12, CURRENT_TIMESTAMP)),
+('Mancuernas Ajustables', 'Par de mancuernas con peso ajustable de 2.5kg a 25kg cada una', 899.99, 1000, 'Deportes y Fitness', 'PowerBlock', true, DATEADD('DAY', -10, CURRENT_TIMESTAMP)),
+('Esterilla de Yoga Premium', 'Esterilla antideslizante de 6mm de grosor, material eco-friendly', 199.99, 1000, 'Deportes y Fitness', 'Manduka', true, DATEADD('DAY', -8, CURRENT_TIMESTAMP)),
+('Libro: Clean Code', 'Guía completa para escribir código limpio y mantenible por Robert C. Martin', 299.99, 1000, 'Libros y Educación', 'Prentice Hall', true, DATEADD('DAY', -6, CURRENT_TIMESTAMP)),
+('Curso Online: Spring Boot Masterclass', 'Curso completo de desarrollo con Spring Boot, incluye certificado', 499.99, 1000, 'Libros y Educación', 'TechAcademy', true, DATEADD('DAY', -4, CURRENT_TIMESTAMP)),
+('Calculadora Científica Casio', 'Calculadora programable con pantalla gráfica, ideal para ingeniería', 399.99, 1000, 'Libros y Educación', 'Casio', true, DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
+('Monitor Gaming 27 pulgadas', 'Monitor curvo con resolución 2K, 144Hz, tiempo de respuesta 1ms', 1899.99, 1000, 'Electrónicos', 'ASUS', true, DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
+('Silla Ergonómica de Oficina', 'Silla con soporte lumbar, reposabrazos ajustables, base de aluminio', 1299.99, 1000, 'Hogar y Jardín', 'Herman Miller', true, DATEADD('HOUR', -3, CURRENT_TIMESTAMP));
 
 -- =====================================================
 -- PEDIDOS DE PRUEBA
@@ -192,29 +192,33 @@ INSERT INTO pedidos (usuario_id, producto_id, cantidad, precio_unitario, total, 
 (5, 8, 1, 899.99, 899.99, 'CANCELADO', 'Producto no disponible en el color solicitado', DATEADD('DAY', -9, CURRENT_TIMESTAMP), DATEADD('DAY', -8, CURRENT_TIMESTAMP));
 
 -- =====================================================
--- INFORMACIÓN DE CREDENCIALES DE PRUEBA
+-- INFORMACIÓN DE USUARIOS DE PRUEBA
 -- =====================================================
-
+--
+-- ⚠️  IMPORTANTE: Las credenciales de los usuarios están encriptadas con BCrypt
+-- ⚠️  Para obtener las credenciales de prueba, consulta la documentación del proyecto
+-- ⚠️  NO EXPONGAS CREDENCIALES EN ESTE ARCHIVO
+--
 -- ✅ USUARIOS DISPONIBLES:
 --
 -- 🔴 ADMINISTRADORES (Rol: ADMIN):
---    Username: admin          | Password: password123
---    Username: superadmin     | Password: password123
+--    Username: admin
+--    Username: superadmin
 --
 -- 🟡 GESTORES (Rol: MANAGER):
---    Username: mrodriguez     | Password: password123
---    Username: cmartinez      | Password: password123
+--    Username: mrodriguez
+--    Username: cmartinez
 --
 -- 🟢 CLIENTES (Rol: CLIENTE):
---    Username: jgarcia        | Password: password123
---    Username: alopez         | Password: password123
---    Username: lmorales       | Password: password123
---    Username: pvasquez       | Password: password123
---    Username: rjimenez       | Password: password123
---    Username: cflores        | Password: password123
+--    Username: jgarcia
+--    Username: alopez
+--    Username: lmorales
+--    Username: pvasquez
+--    Username: rjimenez
+--    Username: cflores
 --
 -- ⚫ USUARIO INACTIVO (para testing):
---    Username: inactivo       | Password: password123 (cuenta deshabilitada)
+--    Username: inactivo (cuenta deshabilitada)
 --
 -- =====================================================
 -- RESUMEN DE DATOS

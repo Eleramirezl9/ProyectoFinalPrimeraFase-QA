@@ -3,11 +3,28 @@ echo =================================================
 echo 🚀 INICIANDO MICROSERVICIO ISO/IEC 25010
 echo =================================================
 
-REM Configurar variables de entorno desde .env
-set DB_URL=jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR^(255^)
+REM ⚠️ IMPORTANTE: Crear archivo .env con credenciales reales
+REM Este script requiere que las credenciales estén configuradas en .env
+
+REM Verificar si existe archivo .env
+if not exist .env (
+    echo ❌ ERROR: Archivo .env no encontrado
+    echo.
+    echo Crea un archivo .env basado en .env.example
+    echo Comando: copy .env.example .env
+    echo Luego edita .env con tus credenciales
+    echo.
+    pause
+    exit /b 1
+)
+
+REM Cargar variables desde .env (solo para desarrollo local)
+for /f "usebackq tokens=1,* delims==" %%a in (.env) do (
+    set "%%a=%%b"
+)
+
+REM Configuraciones adicionales
 set DB_DRIVER=org.h2.Driver
-set DB_USERNAME=dev_user
-set DB_PASSWORD=dev_secure_password_2025
 set DB_PLATFORM=org.hibernate.dialect.H2Dialect
 set DB_DDL_AUTO=create-drop
 set DB_SHOW_SQL=true
@@ -34,10 +51,7 @@ set LOG_LEVEL_SQL=DEBUG
 REM Perfil activo
 set SPRING_PROFILES_ACTIVE=dev
 
-echo ✅ Variables de entorno configuradas
-echo 📍 Base de datos: %DB_URL%
-echo 👤 Usuario: %DB_USERNAME%
-echo 🔑 Password: %DB_PASSWORD%
+echo ✅ Variables de entorno cargadas desde .env
 echo =================================================
 
 REM Ejecutar aplicación

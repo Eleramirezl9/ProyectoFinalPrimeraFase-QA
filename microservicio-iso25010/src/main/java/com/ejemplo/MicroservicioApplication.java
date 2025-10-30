@@ -24,14 +24,13 @@ public class MicroservicioApplication {
         System.setProperty("server.servlet.encoding.force", "true");
         
         SpringApplication.run(MicroservicioApplication.class, args);
+        System.out.println("Autor: Grupo 6 - Estudiante Universidad Mariano Gálvez");
         System.out.println("=================================================");
         System.out.println("🚀 Microservicio ISO/IEC 25010 iniciado exitosamente");
-        System.out.println("🔤 Codificación UTF-8 configurada correctamente");
-        System.out.println("🌍 Soporte completo para caracteres especiales (ñ, á, é, í, ó, ú)");
-        System.out.println("📖 Swagger UI: http://localhost:8080/api/swagger-ui.html");
-        System.out.println("🗄️  H2 Console: http://localhost:8080/api/h2-console");
-        System.out.println("📊 API Docs: http://localhost:8080/api/api-docs");
+        System.out.println("Swagger UI: http://localhost:8080/api/swagger-ui.html");
+        System.out.println("H2 Console: http://localhost:8080/api/h2-console");
+        System.out.println("API Docs: http://localhost:8080/api/api-docs");
         System.out.println("=================================================");
+         
     }
 }
-

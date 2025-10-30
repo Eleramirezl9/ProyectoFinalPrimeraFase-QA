@@ -14,14 +14,28 @@ public class PasswordGenerator {
     public static void main(String[] args) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        String password = "password123";
+        // ⚠️ IMPORTANTE: Este generador es solo para desarrollo
+        // NO incluir credenciales reales en el código fuente
+        if (args.length == 0) {
+            System.out.println("==============================================");
+            System.out.println("GENERADOR DE PASSWORD BCRYPT");
+            System.out.println("==============================================");
+            System.out.println("Uso: java PasswordGenerator <password>");
+            System.out.println("\nEjemplo:");
+            System.out.println("  java PasswordGenerator miPasswordSeguro");
+            System.out.println("\n⚠️  NO incluir credenciales reales en el código");
+            System.out.println("==============================================");
+            return;
+        }
+
+        String password = args[0];
         String hash = encoder.encode(password);
 
         System.out.println("==============================================");
         System.out.println("GENERADOR DE PASSWORD BCRYPT");
         System.out.println("==============================================");
-        System.out.println("Password original: " + password);
-        System.out.println("Hash BCrypt:       " + hash);
+        System.out.println("Hash BCrypt generado exitosamente");
+        System.out.println("Hash: " + hash);
         System.out.println("==============================================");
         System.out.println("\nUsa este hash en tu data.sql");
 

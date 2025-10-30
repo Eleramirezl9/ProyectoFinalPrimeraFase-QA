@@ -1,0 +1,59 @@
+# ==========================================
+# .dockerignore - Root Level
+# ==========================================
+# Excluye archivos innecesarios para optimizar
+# el contexto de Docker build
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# CI/CD
+.github/
+Jenkinsfile
+*.md
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build artifacts (root level)
+target/
+build/
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Documentation (no necesaria en imagen)
+docs/
+README.md
+CLAUDE.md
+CI-CD.md

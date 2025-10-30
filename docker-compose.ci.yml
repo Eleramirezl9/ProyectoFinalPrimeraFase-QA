@@ -1,0 +1,130 @@
+# ==========================================
+# Docker Compose - CI/CD (Jenkins)
+# ==========================================
+# Uso: docker-compose -f docker-compose.ci.yml up
+#
+# Stack completo para CI/CD:
+# - Jenkins con Docker-in-Docker
+# - Microservicio para testing
+# - Networks aislados
+
+services:
+  # ==========================================
+  # JENKINS - Servidor CI/CD
+  # ==========================================
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: jenkins-server
+    user: root
+    ports:
+      - "8082:8080"      # Jenkins UI
+      - "50000:50000"    # Jenkins agent
+    volumes:
+      # Persistencia de Jenkins
+      - jenkins_home:/var/jenkins_home
+
+      # Docker socket para Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # Cache de Maven compartido
+      - maven_cache_ci:/root/.m2
+
+      # Workspace del proyecto
+      - ./microservicio-iso25010:/workspace/microservicio-iso25010:ro
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx2g
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - ci-network
+    restart: unless-stopped
+
+  # ==========================================
+  # MICROSERVICIO - Testing/Staging
+  # ==========================================
+  microservicio-staging:
+    build:
+      context: ./microservicio-iso25010
+      dockerfile: Dockerfile
+    container_name: microservicio-staging
+    ports:
+      - "8080:8080"
+    environment:
+      # Profile de testing
+      - SPRING_PROFILES_ACTIVE=test
+      - SERVER_PORT=8080
+
+      # Database (H2 en memoria para tests)
+      - DB_URL=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+      - DB_USERNAME=sa
+      - DB_PASSWORD=password
+
+      # Features (habilitado para verificación)
+      - H2_CONSOLE_ENABLED=false
+      - SWAGGER_UI_ENABLED=true
+
+      # Logging (INFO para CI)
+      - LOG_LEVEL_APP=INFO
+      - LOG_LEVEL_WEB=INFO
+      - LOG_LEVEL_SQL=WARN
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ci-network
+    restart: unless-stopped
+    depends_on:
+      jenkins:
+        condition: service_healthy
+
+  # ==========================================
+  # SONARQUBE (Opcional - comentado por defecto)
+  # ==========================================
+  # Descomentar si quieres ejecutar SonarQube localmente
+  # sonarqube:
+  #   image: sonarqube:lts-community
+  #   container_name: sonarqube-server
+  #   ports:
+  #     - "9000:9000"
+  #   volumes:
+  #     - sonarqube_data:/opt/sonarqube/data
+  #     - sonarqube_logs:/opt/sonarqube/logs
+  #     - sonarqube_extensions:/opt/sonarqube/extensions
+  #   environment:
+  #     - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+  #   networks:
+  #     - ci-network
+  #   restart: unless-stopped
+
+# ==========================================
+# VOLÚMENES
+# ==========================================
+volumes:
+  jenkins_home:
+    driver: local
+  maven_cache_ci:
+    driver: local
+  # sonarqube_data:
+  #   driver: local
+  # sonarqube_logs:
+  #   driver: local
+  # sonarqube_extensions:
+  #   driver: local
+
+# ==========================================
+# REDES
+# ==========================================
+networks:
+  ci-network:
+    driver: bridge
+    name: ci-network

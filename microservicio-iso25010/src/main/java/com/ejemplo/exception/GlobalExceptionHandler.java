@@ -18,6 +18,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.ArrayList;
@@ -192,6 +193,23 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorDTO, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Maneja errores de credenciales incorrectas (401 Unauthorized)
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorDTO> handleBadCredentialsException(
+            BadCredentialsException ex, WebRequest request) {
+
+        logger.warn("Credenciales incorrectas: {}", ex.getMessage());
+
+        ErrorDTO errorDTO = ErrorDTO.unauthorized(
+            "Credenciales incorrectas. Verifique su nombre de usuario y contraseña.",
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return new ResponseEntity<>(errorDTO, HttpStatus.UNAUTHORIZED);
     }
 
     /**

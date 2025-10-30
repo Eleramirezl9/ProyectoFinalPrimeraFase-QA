@@ -128,9 +128,10 @@ public class SwaggerConfig {
                 | **ADMIN** | Acceso total + eliminar entidades + asignar roles |
 
                 #### Usuarios de Prueba
-                - `admin` / `password123` (ADMIN)
-                - `mrodriguez` / `password123` (MANAGER)
-                - `jgarcia` / `password123` (CLIENTE)
+                ⚠️ Consultar documentación del proyecto para credenciales de prueba
+                - `admin` (ADMIN)
+                - `mrodriguez` (MANAGER)
+                - `jgarcia` (CLIENTE)
 
                 ### Entidades del Sistema
 

@@ -159,11 +159,12 @@ public class JwtService {
 
     /**
      * Obtiene la clave de firma del token
+     * Usa BASE64URL para compatibilidad estricta con RFC 4648
      *
      * @return Clave de firma
      */
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

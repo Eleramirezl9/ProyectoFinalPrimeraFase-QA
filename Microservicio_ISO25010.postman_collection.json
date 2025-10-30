@@ -1,0 +1,750 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789abc",
+		"name": "Microservicio ISO/IEC 25010 - API Testing",
+		"description": "Colección completa de endpoints para pruebas de QA del microservicio ISO/IEC 25010\n\nUniversidad Mariano Gálvez - Aseguramiento de la Calidad\n\nEndpoints incluidos:\n- Autenticación (JWT)\n- Usuarios (CRUD)\n- Productos (CRUD)\n- Pedidos (CRUD + operaciones especiales)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Autenticación",
+			"item": [
+				{
+					"name": "Login (Obtener Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Guardar token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"    pm.environment.set(\"refresh_token\", jsonData.refreshToken);",
+									"    console.log(\"Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");",
+									"}",
+									"",
+									"// Test: Verificar código 200",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test: Verificar que retorna token",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.token).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Autenticación con JWT. Usar:\n- admin / password123 (ADMIN)\n- mrodriguez / password123 (MANAGER)\n- jgarcia / password123 (CLIENTE)"
+					},
+					"response": []
+				},
+				{
+					"name": "Register (Crear Usuario)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"nuevouser\",\n  \"password\": \"Password123!\",\n  \"email\": \"nuevo@example.com\",\n  \"nombre\": \"Nuevo\",\n  \"apellido\": \"Usuario\",\n  \"telefono\": \"50212345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Usuarios",
+			"item": [
+				{
+					"name": "Listar Todos los Usuarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Test\",\n  \"apellido\": \"Usuario\",\n  \"email\": \"test@example.com\",\n  \"telefono\": \"50212345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Usuario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Test Actualizado\",\n  \"apellido\": \"Usuario\",\n  \"email\": \"test@example.com\",\n  \"telefono\": \"50212345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Productos",
+			"item": [
+				{
+					"name": "Listar Todos los Productos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is acceptable\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/productos",
+							"host": ["{{base_url}}"],
+							"path": ["productos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Producto por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/productos/1",
+							"host": ["{{base_url}}"],
+							"path": ["productos", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Producto Test\",\n  \"descripcion\": \"Descripción del producto de prueba\",\n  \"precio\": 999.99,\n  \"stock\": 50,\n  \"categoria\": \"Electrónicos\",\n  \"marca\": \"TestBrand\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/productos",
+							"host": ["{{base_url}}"],
+							"path": ["productos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Producto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"descripcion\": \"Descripción actualizada\",\n  \"precio\": 1299.99,\n  \"stock\": 75,\n  \"categoria\": \"Electrónicos\",\n  \"marca\": \"TestBrand\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/productos/1",
+							"host": ["{{base_url}}"],
+							"path": ["productos", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Producto",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/productos/1",
+							"host": ["{{base_url}}"],
+							"path": ["productos", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Productos por Nombre",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/productos/buscar?nombre=Samsung",
+							"host": ["{{base_url}}"],
+							"path": ["productos", "buscar"],
+							"query": [
+								{
+									"key": "nombre",
+									"value": "Samsung"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filtrar por Categoría",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/productos/categoria/Electrónicos",
+							"host": ["{{base_url}}"],
+							"path": ["productos", "categoria", "Electrónicos"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Pedidos",
+			"item": [
+				{
+					"name": "Listar Todos los Pedidos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains pedidos\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Pedido por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/1",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Pedido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"pedido_id\", jsonData.id);",
+									"    console.log(\"Pedido ID guardado: \" + jsonData.id);",
+									"}",
+									"",
+									"pm.test(\"Pedido creado exitosamente\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuarioId\": 1,\n  \"productoId\": 1,\n  \"cantidad\": 2,\n  \"observaciones\": \"Pedido de prueba desde Postman\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedidos",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Pedido",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuarioId\": 1,\n  \"productoId\": 1,\n  \"cantidad\": 3,\n  \"observaciones\": \"Pedido actualizado\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedidos/{{pedido_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "{{pedido_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar Estado del Pedido",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/{{pedido_id}}/estado?estado=CONFIRMADO",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "{{pedido_id}}", "estado"],
+							"query": [
+								{
+									"key": "estado",
+									"value": "CONFIRMADO",
+									"description": "Valores: PENDIENTE, CONFIRMADO, EN_PROCESO, ENVIADO, ENTREGADO, CANCELADO"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancelar Pedido",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/{{pedido_id}}/cancelar",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "{{pedido_id}}", "cancelar"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Pedido",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/{{pedido_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "{{pedido_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pedidos por Usuario",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/usuario/1",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "usuario", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pedidos por Producto",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/producto/1",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "producto", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pedidos por Estado",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/estado/PENDIENTE",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "estado", "PENDIENTE"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Estadísticas de Pedidos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/pedidos/estadisticas",
+							"host": ["{{base_url}}"],
+							"path": ["pedidos", "estadisticas"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Actuator (Monitoreo)",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/health",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "health"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/info",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "info"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "pedido_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
