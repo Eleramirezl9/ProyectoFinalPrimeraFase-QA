@@ -43,10 +43,18 @@ public class SecurityConfig {
 
     /**
      * Configuración de la cadena de filtros de seguridad
+     *
+     * CSRF está deshabilitado de forma segura porque:
+     * - Esta es una API REST stateless que usa autenticación JWT
+     * - JWT se envía en el header Authorization, no en cookies
+     * - SessionCreationPolicy.STATELESS significa que no hay sesiones de servidor
+     * - CSRF solo es relevante para aplicaciones que usan cookies de sesión
+     * - La protección contra CSRF no es necesaria para APIs basadas en tokens
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF deshabilitado: API REST stateless con JWT (sin cookies de sesión)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
