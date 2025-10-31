@@ -185,6 +185,7 @@ jobs:
       - name: 🔍 Analyze with SonarQube
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # SONAR_TOKEN configurado en GitHub Secrets del repositorio
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           # Database configuration para tests
           DB_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)
