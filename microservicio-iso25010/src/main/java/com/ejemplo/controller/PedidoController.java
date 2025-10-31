@@ -41,7 +41,8 @@ import java.util.List;
 public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
-    
+    private static final String PEDIDO_NOT_FOUND_MSG = "Pedido no encontrado con ID: ";
+
     private final PedidoRepository pedidoRepository;
     private final ProductoService productoService;
     private final UsuarioRepository usuarioRepository;
@@ -135,7 +136,7 @@ public class PedidoController {
             @PathVariable Long id) {
         logger.info("GET /pedidos/{} - Obteniendo pedido por ID", id);
         Pedido pedido = pedidoRepository.findByIdWithRelations(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(PEDIDO_NOT_FOUND_MSG + id));
         logger.info("Pedido encontrado: ID={}, Estado={}", pedido.getId(), pedido.getEstado());
 
         // Convertir a DTO para evitar ciclos de serialización
@@ -204,7 +205,7 @@ public class PedidoController {
         logger.info("PUT /pedidos/{} - Actualizando pedido", id);
         
         Pedido pedidoExistente = pedidoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(PEDIDO_NOT_FOUND_MSG + id));
 
         // Solo permitir actualización si el pedido está pendiente
         if (pedidoExistente.getEstado() != Pedido.EstadoPedido.PENDIENTE) {
@@ -258,7 +259,7 @@ public class PedidoController {
         logger.info("DELETE /pedidos/{} - Eliminando pedido", id);
         
         Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(PEDIDO_NOT_FOUND_MSG + id));
 
         // Solo permitir eliminación si el pedido puede ser cancelado
         if (!pedido.puedeSerCancelado()) {
@@ -327,7 +328,9 @@ public class PedidoController {
     public ResponseEntity<List<Pedido>> obtenerPorEstado(
             @Parameter(description = "Estado del pedido", required = true, example = "PENDIENTE")
             @PathVariable String estado) {
-        logger.info("GET /pedidos/estado/{} - Obteniendo pedidos por estado", LogSanitizer.sanitize(estado));
+        if (logger.isInfoEnabled()) {
+            logger.info("GET /pedidos/estado/{} - Obteniendo pedidos por estado", LogSanitizer.sanitize(estado));
+        }
         
         try {
             Pedido.EstadoPedido estadoPedido = Pedido.EstadoPedido.valueOf(estado.toUpperCase());
@@ -357,10 +360,12 @@ public class PedidoController {
             @PathVariable Long id,
             @Parameter(description = "Nuevo estado", required = true, example = "CONFIRMADO")
             @RequestParam String estado) {
-        logger.info("PATCH /pedidos/{}/estado?estado={} - Cambiando estado de pedido", id, LogSanitizer.sanitize(estado));
+        if (logger.isInfoEnabled()) {
+            logger.info("PATCH /pedidos/{}/estado?estado={} - Cambiando estado de pedido", id, LogSanitizer.sanitize(estado));
+        }
         
         Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(PEDIDO_NOT_FOUND_MSG + id));
 
         try {
             Pedido.EstadoPedido nuevoEstado = Pedido.EstadoPedido.valueOf(estado.toUpperCase());
@@ -395,7 +400,7 @@ public class PedidoController {
         logger.info("PATCH /pedidos/{}/cancelar - Cancelando pedido", id);
         
         Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(PEDIDO_NOT_FOUND_MSG + id));
 
         if (!pedido.puedeSerCancelado()) {
             throw new IllegalStateException("El pedido no puede ser cancelado. Estado actual: " + pedido.getEstado());

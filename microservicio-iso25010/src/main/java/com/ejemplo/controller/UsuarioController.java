@@ -90,7 +90,9 @@ public class UsuarioController {
             @PathVariable Long id) {
         logger.info("GET /usuarios/{} - Obteniendo usuario por ID", id);
         UsuarioDTO usuario = usuarioService.obtenerPorId(id);
-        logger.info("Usuario encontrado: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        if (logger.isInfoEnabled()) {
+            logger.info("Usuario encontrado: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        }
         return ResponseEntity.ok(usuario);
     }
 
@@ -110,7 +112,9 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> crear(
             @Parameter(description = "Datos del usuario a crear", required = true)
             @Valid @RequestBody UsuarioDTO usuarioDTO) {
-        logger.info("POST /usuarios - Creando nuevo usuario con email: {}", LogSanitizer.sanitize(usuarioDTO.getEmail()));
+        if (logger.isInfoEnabled()) {
+            logger.info("POST /usuarios - Creando nuevo usuario con email: {}", LogSanitizer.sanitize(usuarioDTO.getEmail()));
+        }
         UsuarioDTO usuarioCreado = usuarioService.crear(usuarioDTO);
         logger.info("Usuario creado exitosamente con ID: {}", usuarioCreado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCreado);
@@ -137,7 +141,9 @@ public class UsuarioController {
             @Valid @RequestBody UsuarioDTO usuarioDTO) {
         logger.info("PUT /usuarios/{} - Actualizando usuario", id);
         UsuarioDTO usuarioActualizado = usuarioService.actualizar(id, usuarioDTO);
-        logger.info("Usuario actualizado exitosamente: {}", LogSanitizer.sanitize(usuarioActualizado.getEmail()));
+        if (logger.isInfoEnabled()) {
+            logger.info("Usuario actualizado exitosamente: {}", LogSanitizer.sanitize(usuarioActualizado.getEmail()));
+        }
         return ResponseEntity.ok(usuarioActualizado);
     }
 
@@ -177,9 +183,11 @@ public class UsuarioController {
     })
     public ResponseEntity<UsuarioDTO> buscarPorEmail(
             @Parameter(description = "Email del usuario", required = true, example = "usuario@ejemplo.com")
-            @PathVariable @Email(message = "El formato del email no es válido") 
+            @PathVariable @Email(message = "El formato del email no es válido")
             @NotBlank(message = "El email no puede estar vacío") String email) {
-        logger.info("GET /usuarios/email/{} - Buscando usuario por email", LogSanitizer.sanitize(email));
+        if (logger.isInfoEnabled()) {
+            logger.info("GET /usuarios/email/{} - Buscando usuario por email", LogSanitizer.sanitize(email));
+        }
         UsuarioDTO usuario = usuarioService.buscarPorEmail(email);
         return ResponseEntity.ok(usuario);
     }
@@ -201,9 +209,13 @@ public class UsuarioController {
             @Parameter(description = "Nombre a buscar", required = true, example = "Juan")
             @RequestParam @NotBlank(message = "El nombre a buscar no puede estar vacío")
             @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres") String nombre) {
-        logger.info("GET /usuarios/buscar?nombre={} - Buscando usuarios por nombre", LogSanitizer.sanitize(nombre));
+        if (logger.isInfoEnabled()) {
+            logger.info("GET /usuarios/buscar?nombre={} - Buscando usuarios por nombre", LogSanitizer.sanitize(nombre));
+        }
         List<UsuarioDTO> usuarios = usuarioService.buscarPorNombre(nombre);
-        logger.info("Se encontraron {} usuarios con nombre: {}", usuarios.size(), LogSanitizer.sanitize(nombre));
+        if (logger.isInfoEnabled()) {
+            logger.info("Se encontraron {} usuarios con nombre: {}", usuarios.size(), LogSanitizer.sanitize(nombre));
+        }
         return ResponseEntity.ok(usuarios);
     }
 
@@ -263,7 +275,9 @@ public class UsuarioController {
             @PathVariable Long id) {
         logger.info("PATCH /usuarios/{}/activar - Activando usuario", id);
         UsuarioDTO usuario = usuarioService.activar(id);
-        logger.info("Usuario activado exitosamente: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        if (logger.isInfoEnabled()) {
+            logger.info("Usuario activado exitosamente: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        }
         return ResponseEntity.ok(usuario);
     }
 
@@ -285,7 +299,9 @@ public class UsuarioController {
             @PathVariable Long id) {
         logger.info("PATCH /usuarios/{}/desactivar - Desactivando usuario", id);
         UsuarioDTO usuario = usuarioService.desactivar(id);
-        logger.info("Usuario desactivado exitosamente: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        if (logger.isInfoEnabled()) {
+            logger.info("Usuario desactivado exitosamente: {}", LogSanitizer.sanitize(usuario.getEmail()));
+        }
         return ResponseEntity.ok(usuario);
     }
 
@@ -305,9 +321,13 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioDTO>> buscarPorTexto(
             @Parameter(description = "Texto a buscar", required = true, example = "juan@ejemplo.com")
             @RequestParam String texto) {
-        logger.info("GET /usuarios/buscar-texto?texto={} - Búsqueda libre de usuarios", LogSanitizer.sanitize(texto));
+        if (logger.isInfoEnabled()) {
+            logger.info("GET /usuarios/buscar-texto?texto={} - Búsqueda libre de usuarios", LogSanitizer.sanitize(texto));
+        }
         List<UsuarioDTO> usuarios = usuarioService.buscarPorTexto(texto);
-        logger.info("Se encontraron {} usuarios con texto: {}", usuarios.size(), LogSanitizer.sanitize(texto));
+        if (logger.isInfoEnabled()) {
+            logger.info("Se encontraron {} usuarios con texto: {}", usuarios.size(), LogSanitizer.sanitize(texto));
+        }
         return ResponseEntity.ok(usuarios);
     }
 
