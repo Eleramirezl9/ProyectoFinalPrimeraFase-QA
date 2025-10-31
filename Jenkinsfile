@@ -26,6 +26,57 @@ pipeline {
 
         // Configuración Maven
         MAVEN_OPTS = '-Dmaven.repo.local=/root/.m2/repository'
+
+        // Variables de entorno para tests y build
+        DB_URL = 'jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TEXT AS VARCHAR(255)'
+        DB_DRIVER = 'org.h2.Driver'
+        DB_USERNAME = 'test_user'
+        DB_PASSWORD = 'test_password'
+        DB_PLATFORM = 'org.hibernate.dialect.H2Dialect'
+        DB_DDL_AUTO = 'create-drop'
+        DB_SHOW_SQL = 'false'
+
+        // CORS configuration
+        CORS_ALLOWED_ORIGINS = 'http://localhost:3000,http://localhost:4200,http://localhost:5173'
+        CORS_ALLOWED_METHODS = 'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+        CORS_ALLOWED_HEADERS = 'Content-Type,Authorization,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers'
+        CORS_EXPOSED_HEADERS = 'Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Location,X-Total-Count'
+        CORS_ALLOW_CREDENTIALS = 'true'
+        CORS_MAX_AGE = '3600'
+
+        // JWT configuration
+        JWT_SECRET = 'jenkins-secret-key-for-testing-minimum-256-bits-required-for-security-purposes-only'
+        JWT_EXPIRATION = '86400000'
+        JWT_REFRESH_TOKEN_EXPIRATION = '604800000'
+
+        // Server configuration
+        SERVER_PORT = '8080'
+        CONTEXT_PATH = '/api'
+
+        // H2 Console
+        H2_CONSOLE_ENABLED = 'false'
+        H2_CONSOLE_PATH = '/h2-console'
+        H2_WEB_ALLOW_OTHERS = 'false'
+
+        // Swagger
+        SWAGGER_ENABLED = 'false'
+        SWAGGER_UI_ENABLED = 'false'
+        SWAGGER_API_DOCS_PATH = '/api-docs'
+        SWAGGER_UI_PATH = '/swagger-ui.html'
+
+        // Logging
+        LOG_LEVEL_APP = 'INFO'
+        LOG_LEVEL_WEB = 'WARN'
+        LOG_LEVEL_SQL = 'WARN'
+        LOG_LEVEL_HIBERNATE = 'WARN'
+        LOG_LEVEL_ROOT = 'INFO'
+
+        // Actuator
+        ACTUATOR_ENDPOINTS = 'health,info'
+        ACTUATOR_HEALTH_DETAILS = 'when-authorized'
+
+        // Spring Profile
+        SPRING_PROFILES_ACTIVE = 'test'
     }
 
     options {
@@ -95,7 +146,34 @@ pipeline {
         }
 
         // ==========================================
-        // STAGE 4: Package
+        // STAGE 4: Coverage Check (JaCoCo)
+        // ==========================================
+        stage('Coverage Check') {
+            steps {
+                echo '📊 Verificando cobertura de código con JaCoCo...'
+                dir('microservicio-iso25010') {
+                    sh 'mvn jacoco:report jacoco:check ${MAVEN_OPTS}'
+                }
+            }
+            post {
+                always {
+                    // Publicar reporte de cobertura JaCoCo
+                    script {
+                        if (fileExists('microservicio-iso25010/target/site/jacoco/index.html')) {
+                            publishHTML([
+                                reportDir: 'microservicio-iso25010/target/site/jacoco',
+                                reportFiles: 'index.html',
+                                reportName: 'JaCoCo Coverage Report',
+                                keepAll: true
+                            ])
+                        }
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // STAGE 5: Package
         // ==========================================
         stage('Package') {
             steps {
@@ -114,7 +192,7 @@ pipeline {
         }
 
         // ==========================================
-        // STAGE 5: SonarQube Analysis (Opcional)
+        // STAGE 6: SonarQube Analysis (Opcional)
         // ==========================================
         stage('SonarQube Analysis') {
             when {
@@ -147,7 +225,7 @@ pipeline {
         }
 
         // ==========================================
-        // STAGE 6: Build Docker Image
+        // STAGE 7: Build Docker Image
         // ==========================================
         stage('Build Docker Image') {
             steps {
@@ -171,7 +249,7 @@ pipeline {
         }
 
         // ==========================================
-        // STAGE 7: Deploy
+        // STAGE 8: Deploy
         // ==========================================
         stage('Deploy') {
             steps {
