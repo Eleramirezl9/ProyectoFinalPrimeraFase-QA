@@ -1,0 +1,28 @@
+package com.ejemplo.config;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
+
+/**
+ * Configuración de RestTemplate para llamadas HTTP.
+ * Utilizado por Circuit Breaker y monitores de resiliencia.
+ */
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplateBuilder restTemplateBuilder() {
+        return new RestTemplateBuilder()
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(5));
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
+}

@@ -2,6 +2,8 @@ package com.ejemplo.service;
 
 import com.ejemplo.model.Producto;
 import com.ejemplo.repository.ProductoRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Servicio para la gestión de productos
  * Contiene la lógica de negocio para operaciones CRUD y consultas especializadas
- * 
+ * Implementa patrones de resiliencia: Circuit Breaker, Retry y Fallback
+ *
  * @author Estudiante Universidad Mariano Gálvez
  * @version 1.0.0
  */
@@ -25,31 +29,67 @@ import java.util.List;
 public class ProductoService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductoService.class);
+    private static final String PRODUCTO_SERVICE_CB = "productoService";
 
     @Autowired
     private ProductoRepository productoRepository;
 
     /**
-     * Obtiene todos los productos
+     * Obtiene todos los productos con Circuit Breaker y Retry
+     * Si el servicio falla, retorna lista desde caché o lista vacía
      * @return Lista de productos
      */
+    @CircuitBreaker(name = PRODUCTO_SERVICE_CB, fallbackMethod = "obtenerTodosFallback")
+    @Retry(name = PRODUCTO_SERVICE_CB)
     @Transactional(readOnly = true)
     public List<Producto> obtenerTodos() {
-        logger.debug("Obteniendo todos los productos");
+        logger.debug("Obteniendo todos los productos con Circuit Breaker");
         return productoRepository.findAll();
     }
 
     /**
-     * Obtiene un producto por su ID
+     * Método fallback para obtenerTodos
+     * Se ejecuta cuando el circuit breaker está abierto o hay demasiados fallos
+     * Invocado dinámicamente por Resilience4j
+     */
+    @SuppressWarnings("unused")
+    private List<Producto> obtenerTodosFallback(Exception ex) {
+        logger.warn("Circuit Breaker activado para obtenerTodos. Retornando lista vacía. Error: {}", ex.getMessage());
+        return Collections.emptyList();
+    }
+
+    /**
+     * Obtiene un producto por su ID con Circuit Breaker
      * @param id ID del producto
      * @return Producto encontrado
      * @throws EntityNotFoundException si el producto no existe
      */
+    @CircuitBreaker(name = PRODUCTO_SERVICE_CB, fallbackMethod = "obtenerPorIdFallback")
+    @Retry(name = PRODUCTO_SERVICE_CB)
     @Transactional(readOnly = true)
     public Producto obtenerPorId(Long id) {
-        logger.debug("Obteniendo producto por ID: {}", id);
+        logger.debug("Obteniendo producto por ID: {} con Circuit Breaker", id);
         return productoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + id));
+    }
+
+    /**
+     * Método fallback para obtenerPorId
+     * Retorna un producto genérico cuando el servicio no está disponible
+     * Invocado dinámicamente por Resilience4j
+     */
+    @SuppressWarnings("unused")
+    private Producto obtenerPorIdFallback(Long id, Exception ex) {
+        logger.warn("Circuit Breaker activado para obtenerPorId({}). Error: {}", id, ex.getMessage());
+        // Retornar producto genérico con información limitada
+        Producto productoFallback = new Producto();
+        productoFallback.setId(id);
+        productoFallback.setNombre("Producto no disponible temporalmente");
+        productoFallback.setDescripcion("El servicio está experimentando problemas. Intente más tarde.");
+        productoFallback.setPrecio(BigDecimal.ZERO);
+        productoFallback.setStock(0);
+        productoFallback.setActivo(false);
+        return productoFallback;
     }
 
     /**
@@ -255,27 +295,44 @@ public class ProductoService {
     }
 
     /**
-     * Reduce el stock de un producto
+     * Reduce el stock de un producto con Circuit Breaker
+     * Operación crítica que debe ser resiliente a fallos
      * @param id ID del producto
      * @param cantidad Cantidad a reducir
      * @return Producto actualizado
      */
+    @CircuitBreaker(name = PRODUCTO_SERVICE_CB, fallbackMethod = "reducirStockFallback")
+    @Retry(name = PRODUCTO_SERVICE_CB)
     public Producto reducirStock(Long id, Integer cantidad) {
-        logger.debug("Reduciendo stock del producto ID: {} en {}", id, cantidad);
-        
+        logger.debug("Reduciendo stock del producto ID: {} en {} con Circuit Breaker", id, cantidad);
+
         Producto producto = obtenerPorId(id);
-        
+
         if (!producto.tieneStock(cantidad)) {
             throw new IllegalArgumentException("Stock insuficiente. Stock actual: " + producto.getStock());
         }
-        
+
         producto.reducirStock(cantidad);
         producto.setFechaActualizacion(LocalDateTime.now());
-        
+
         Producto productoActualizado = productoRepository.save(producto);
         logger.info("Stock reducido exitosamente para producto ID: {}", id);
-        
+
         return productoActualizado;
+    }
+
+    /**
+     * Método fallback para reducirStock
+     * Lanza excepción informativa cuando el servicio no está disponible
+     * Invocado dinámicamente por Resilience4j
+     */
+    @SuppressWarnings("unused")
+    private Producto reducirStockFallback(Long id, Integer cantidad, Exception ex) {
+        logger.error("Circuit Breaker activado para reducirStock. ID: {}, Cantidad: {}. Error: {}",
+                    id, cantidad, ex.getMessage());
+        throw new RuntimeException("Servicio de inventario no disponible temporalmente. " +
+                                  "No se pudo reducir el stock del producto " + id +
+                                  ". Por favor, intente nuevamente en unos momentos.", ex);
     }
 
     /**

@@ -6,19 +6,12 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+      force-request: true
+      force-response: true
 
 spring:
   application:
     name: microservicio-iso25010
-  
-  # Configuración HTTP y codificación
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-      force-request: true
-      force-response: true
   
   # Configuración de base de datos H2
   datasource:
@@ -85,10 +78,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: ${ACTUATOR_ENDPOINTS:health,info,metrics}
+        include: ${ACTUATOR_ENDPOINTS:health,info,metrics,circuitbreakers,circuitbreakerevents,retries,retryevents}
   endpoint:
     health:
       show-details: ${ACTUATOR_HEALTH_DETAILS:when-authorized}
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 # Configuración personalizada de CORS
 cors:
@@ -105,3 +104,55 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000}
   refresh-token:
     expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
+
+# Configuración de Resilience4j - Circuit Breaker, Retry, Fallback
+resilience4j:
+  # Circuit Breaker Configuration
+  circuitbreaker:
+    instances:
+      pedidoService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10                      # Ventana de 10 llamadas para evaluar
+        minimumNumberOfCalls: 5                    # Mínimo 5 llamadas antes de calcular tasa de fallo
+        failureRateThreshold: 50                   # 50% de fallos abre el circuito
+        waitDurationInOpenState: 10s               # Espera 10s antes de pasar a HALF_OPEN
+        permittedNumberOfCallsInHalfOpenState: 3   # Permite 3 llamadas en estado HALF_OPEN
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+
+      productoService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+
+  # Retry Configuration
+  retry:
+    instances:
+      productoService:
+        maxAttempts: 3                             # Máximo 3 intentos
+        waitDuration: 1s                           # Espera 1 segundo entre reintentos
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+        ignoreExceptions:
+          - jakarta.persistence.EntityNotFoundException
+
+      pedidoService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+
+  # Time Limiter Configuration
+  timelimiter:
+    instances:
+      pedidoService:
+        timeoutDuration: 5s                        # Timeout de 5 segundos
+      productoService:
+        timeoutDuration: 3s                        # Timeout de 3 segundos

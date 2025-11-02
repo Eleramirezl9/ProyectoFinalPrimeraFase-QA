@@ -5,5 +5,10 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "eleramirezl9",
         "projectKey": "Eleramirezl9_ProyectoFinalPrimeraFase-QA"
-    }
+    },
+    "python.testing.pytestArgs": [
+        "microservicio-iso25010"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

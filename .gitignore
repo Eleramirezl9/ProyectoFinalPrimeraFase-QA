@@ -1,0 +1,7 @@
+# JMeter test results (large files)
+pruebas de jmeter/*.csv
+pruebas de jmeter/resultados_*.csv
+
+# JMeter logs
+*.jtl
+*.log
