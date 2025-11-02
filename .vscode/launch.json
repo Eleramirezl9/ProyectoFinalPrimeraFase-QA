@@ -11,11 +11,21 @@
             "type": "java",
             "name": "Spring Boot-MicroservicioApplication<microservicio-iso25010>",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/microservicio-iso25010",
             "mainClass": "com.ejemplo.MicroservicioApplication",
             "projectName": "microservicio-iso25010",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/microservicio-iso25010/.env",
+            "vmArgs": "--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "Debug Java Tests",
+            "request": "launch",
+            "mainClass": "",
+            "projectName": "microservicio-iso25010",
+            "cwd": "${workspaceFolder}/microservicio-iso25010",
+            "vmArgs": "--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.security=ALL-UNNAMED --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED -Dnet.bytebuddy.experimental=true"
         }
     ]
 }
